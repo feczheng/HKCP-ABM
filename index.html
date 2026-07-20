@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hong Kong Child ABM</title>
+    <link rel="stylesheet" href="styles.css?v=20260709-interaction-rules" />
+  </head>
+  <body>
+    <main class="app">
+      <aside class="control-panel" aria-label="Simulation controls">
+        <div class="brand-block">
+          <div class="brand-kicker">Agent-based model</div>
+          <h1>HK Child ABM</h1>
+        </div>
+
+        <section class="control-group">
+          <label for="scenarioSelect">Scenario</label>
+          <select id="scenarioSelect">
+            <option value="baseline">Baseline school day</option>
+            <option value="walkable">Walkable school streets</option>
+            <option value="heat">Very hot afternoon</option>
+            <option value="exam">Exam week</option>
+            <option value="typhoon">Typhoon shelter day</option>
+          </select>
+        </section>
+
+        <section class="control-group">
+          <label for="focusSelect">Focus area</label>
+          <select id="focusSelect"></select>
+        </section>
+
+        <section class="control-group">
+          <div class="range-label">
+            <label for="populationRange">Children</label>
+            <output id="populationOutput" for="populationRange">2000</output>
+          </div>
+          <input id="populationRange" type="range" min="200" max="2200" step="50" value="2000" />
+        </section>
+
+        <section class="control-group">
+          <div class="range-label">
+            <label for="speedRange">Speed</label>
+            <output id="speedOutput" for="speedRange">36x</output>
+          </div>
+          <input id="speedRange" type="range" min="6" max="120" step="6" value="36" />
+        </section>
+
+        <section class="control-group">
+          <div class="range-label">
+            <label for="timeRange">Clock</label>
+            <output id="timeOutput" for="timeRange">07:00</output>
+          </div>
+          <input id="timeRange" type="range" min="0" max="1439" step="5" value="420" />
+        </section>
+
+        <div class="button-row">
+          <button id="toggleButton" type="button">Pause</button>
+          <button id="resetButton" type="button">Reset</button>
+        </div>
+      </aside>
+
+      <section class="simulation-area" aria-label="Simulation view">
+        <header class="view-bar">
+          <div class="segmented" role="tablist" aria-label="View mode">
+            <button class="tab-button active" data-view="scene" role="tab" aria-selected="true">3D</button>
+            <button class="tab-button" data-view="map" role="tab" aria-selected="false">Map</button>
+            <button class="tab-button" data-view="osm" role="tab" aria-selected="false">OSM</button>
+            <button class="tab-button" data-view="buildings" role="tab" aria-selected="false">Buildings</button>
+            <button class="tab-button" data-view="rules" role="tab" aria-selected="false">Rules</button>
+            <button class="tab-button" data-view="stats" role="tab" aria-selected="false">Stats</button>
+          </div>
+          <div class="view-tools" aria-label="3D camera controls">
+            <button id="zoomOutButton" type="button" title="Zoom out" aria-label="Zoom out">-</button>
+            <button id="zoomFitButton" type="button" title="Fit view" aria-label="Fit view">Fit</button>
+            <button id="zoomInButton" type="button" title="Zoom in" aria-label="Zoom in">+</button>
+          </div>
+          <div class="clock-pill">
+            <span id="clockDisplay">07:00</span>
+            <span id="dayPhase">Morning</span>
+          </div>
+        </header>
+
+        <canvas id="sceneCanvas" class="view-canvas active" aria-label="3D child activity simulation"></canvas>
+        <canvas id="mapCanvas" class="view-canvas" aria-label="2D child activity map"></canvas>
+        <canvas id="osmCanvas" class="view-canvas" aria-label="OpenStreetMap child activity map"></canvas>
+
+        <section id="buildingsView" class="buildings-view" aria-label="3D building model view">
+          <canvas id="buildingCanvas" class="building-canvas" aria-label="Hong Kong building distribution map"></canvas>
+          <aside class="building-readout" aria-label="Building model details">
+            <div class="building-select-block">
+              <label for="buildingSelect">Inspect building</label>
+              <select id="buildingSelect"></select>
+            </div>
+            <div class="building-metrics">
+              <div class="metric-row">
+                <span>Name</span>
+                <strong id="buildingName">No building</strong>
+              </div>
+              <div class="metric-row">
+                <span>Height</span>
+                <strong id="buildingHeight">0 m</strong>
+              </div>
+              <div class="metric-row">
+                <span>Levels</span>
+                <strong id="buildingLevels">n/a</strong>
+              </div>
+              <div class="metric-row">
+                <span>Footprint</span>
+                <strong id="buildingFootprint">0 m2</strong>
+              </div>
+              <div class="metric-row">
+                <span>Source</span>
+                <strong id="buildingModelSource">CSDI</strong>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section id="statsView" class="stats-view" aria-label="Simulation statistics">
+          <div class="stats-grid" id="statsGrid"></div>
+          <div class="activity-stack" id="activityStack"></div>
+          <div class="history-chart" id="historyChart"></div>
+        </section>
+
+        <section id="rulesView" class="rules-view" aria-label="Behaviour rules">
+          <header class="rules-header">
+            <div>
+              <span>Live model coefficients</span>
+              <h2>Agent interaction rules</h2>
+            </div>
+            <button id="resetRulesButton" type="button">Reset coefficients</button>
+          </header>
+
+          <div class="rules-list">
+            <section class="rule-row">
+              <div class="rule-name">
+                <strong>Crowding avoidance</strong>
+                <span>Neighbour repulsion strength</span>
+              </div>
+              <input id="crowdAvoidanceRange" type="range" min="0" max="1.5" step="0.05" value="0.7" />
+              <output id="crowdAvoidanceOutput" for="crowdAvoidanceRange">0.70</output>
+            </section>
+            <section class="rule-row">
+              <div class="rule-name">
+                <strong>Destination crowd penalty</strong>
+                <span>Less attractive occupied areas</span>
+              </div>
+              <input id="destinationCrowdRange" type="range" min="0" max="2" step="0.05" value="0.85" />
+              <output id="destinationCrowdOutput" for="destinationCrowdRange">0.85</output>
+            </section>
+            <section class="rule-row">
+              <div class="rule-name">
+                <strong>Contact sensitivity</strong>
+                <span>Exposure accumulated per neighbour</span>
+              </div>
+              <input id="contactSensitivityRange" type="range" min="0" max="2" step="0.05" value="1" />
+              <output id="contactSensitivityOutput" for="contactSensitivityRange">1.00</output>
+            </section>
+            <section class="rule-row">
+              <div class="rule-name">
+                <strong>Park attraction</strong>
+                <span>Green-space weight after school</span>
+              </div>
+              <input id="parkAttractionRange" type="range" min="0" max="2" step="0.05" value="1" />
+              <output id="parkAttractionOutput" for="parkAttractionRange">1.00</output>
+            </section>
+            <section class="rule-row">
+              <div class="rule-name">
+                <strong>Heat avoidance</strong>
+                <span>Outdoor choice response to heat</span>
+              </div>
+              <input id="heatAvoidanceRange" type="range" min="0" max="2" step="0.05" value="0.8" />
+              <output id="heatAvoidanceOutput" for="heatAvoidanceRange">0.80</output>
+            </section>
+          </div>
+
+          <div class="rule-method">
+            <div><span>Interaction neighbourhood</span><strong>3D spatial grid</strong></div>
+            <div><span>Personal crowd tolerance</span><strong>2-7 neighbours</strong></div>
+            <div><span>Destination inputs</span><strong>Park, transit, density, heat, crowding</strong></div>
+            <div><span>Parameter provenance</span><strong>Exploratory model assumptions</strong></div>
+          </div>
+        </section>
+
+        <div id="tooltip" class="tooltip" hidden></div>
+      </section>
+
+      <aside class="metrics-panel" aria-label="Model metrics">
+        <section class="metric-section">
+          <h2>Activity Mix</h2>
+          <div id="activityList" class="activity-list"></div>
+        </section>
+
+        <section class="metric-section">
+          <h2>3D Area Calculation</h2>
+          <div class="metric-row">
+            <span>Area</span>
+            <strong id="focusName">Central and Western DCCA</strong>
+          </div>
+          <div class="metric-row">
+            <span>Boundary type</span>
+            <strong id="focusType">District</strong>
+          </div>
+          <div class="metric-row">
+            <span>Surface area</span>
+            <strong id="focusArea">0 km2</strong>
+          </div>
+          <div class="metric-row">
+            <span>Height basis</span>
+            <strong id="focusHeight">0 m</strong>
+          </div>
+          <div class="metric-row">
+            <span>Max building</span>
+            <strong id="focusMaxBuilding">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Volume basis</span>
+            <strong id="focusVolume">0 km3</strong>
+          </div>
+          <div class="metric-row">
+            <span>Children in volume</span>
+            <strong id="focusChildren">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>3D density</span>
+            <strong id="focusDensity">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Mean occupied floor</span>
+            <strong id="focusFloor">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Outdoor heat load</span>
+            <strong id="focusHeat">0.00</strong>
+          </div>
+          <div class="metric-row">
+            <span>Resident children proxy</span>
+            <strong id="focusResidentChildren">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>EDB schools</span>
+            <strong id="focusSchools">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>LCSD parks</span>
+            <strong id="focusParks">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Activity venues</span>
+            <strong id="focusActivities">0</strong>
+          </div>
+        </section>
+
+        <section class="metric-section">
+          <h2>System</h2>
+          <div class="metric-row">
+            <span>School attendance</span>
+            <strong id="schoolMetric">0%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Commuting load</span>
+            <strong id="commuteMetric">0%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Outdoor share</span>
+            <strong id="outdoorMetric">0%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Contact index</span>
+            <strong id="contactMetric">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Crowded children</span>
+            <strong id="crowdedMetric">0%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Contact exposure</span>
+            <strong id="exposureMetric">0.0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Avoided destinations</span>
+            <strong id="avoidanceMetric">0</strong>
+          </div>
+        </section>
+
+        <section class="metric-section">
+          <h2>Scenario Params</h2>
+          <div class="metric-row">
+            <span>School open</span>
+            <strong id="scenarioSchool">Yes</strong>
+          </div>
+          <div class="metric-row">
+            <span>Outdoor factor</span>
+            <strong id="scenarioOutdoor">1.00</strong>
+          </div>
+          <div class="metric-row">
+            <span>Activity factor</span>
+            <strong id="scenarioActivity">1.00</strong>
+          </div>
+          <div class="metric-row">
+            <span>Heat factor</span>
+            <strong id="scenarioHeat">0.45</strong>
+          </div>
+          <div class="metric-row">
+            <span>Mobility factor</span>
+            <strong id="scenarioMobility">1.00</strong>
+          </div>
+          <div class="metric-row">
+            <span>Contact factor</span>
+            <strong id="scenarioContact">1.00</strong>
+          </div>
+        </section>
+
+        <section class="metric-section">
+          <h2>Data Sources</h2>
+          <div class="metric-row">
+            <span>Boundaries</span>
+            <strong id="boundarySource">HAD + EAC</strong>
+          </div>
+          <div class="metric-row">
+            <span>3D buildings</span>
+            <strong id="buildingSource">CSDI buildings</strong>
+          </div>
+          <div class="metric-row">
+            <span>Behaviour</span>
+            <strong id="behaviourSource">Model params</strong>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="data/hk_real_geodata.js?v=20260710-real-calibration"></script>
+    <script src="app.js?v=20260710-real-calibration"></script>
+  </body>
+</html>
