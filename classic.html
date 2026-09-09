@@ -1,0 +1,1602 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hong Kong Child ABM</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css?v=20260905-v12-12-terrain-qa" />
+    <link rel="stylesheet" href="design/cross-pack-lab.css?v=12.14.1" />
+  </head>
+  <body>
+    <main class="app">
+      <aside class="control-panel" aria-label="Simulation controls">
+        <button
+          id="collapseControlsButton"
+          class="panel-collapse-button control-panel-collapse"
+          type="button"
+          title="Collapse controls"
+          aria-label="Collapse controls"
+          aria-expanded="true"
+        >
+          <span id="controlsCollapseIcon" aria-hidden="true">&lsaquo;</span>
+          <small>Controls</small>
+        </button>
+        <div class="brand-block">
+          <div class="brand-kicker">Agent-based model</div>
+          <h1>HK Child ABM</h1>
+          <div class="release-line" aria-label="Application release status">
+            <span id="releaseBadge" class="release-badge">V12.12</span>
+            <span id="releaseScopeStatus">NT West · source-3D baseline</span>
+          </div>
+        </div>
+
+        <section class="control-group">
+          <label for="scenarioSelect">Scenario</label>
+          <select id="scenarioSelect">
+            <option value="baseline">Baseline day</option>
+            <option value="walkable">Walkable streets</option>
+            <option value="heat">Hot afternoon</option>
+            <option value="exam">Exam week</option>
+            <option value="typhoon">Typhoon day</option>
+          </select>
+        </section>
+
+        <section class="control-group">
+          <label for="scopeSelect">Model scope</label>
+          <select id="scopeSelect">
+            <option value="hong-kong-island">HK Island · 80</option>
+            <option value="continuous-kowloon">Kowloon · 135</option>
+            <option value="new-territories-east">NT East · 107</option>
+            <option value="new-territories-west" selected>NT West · 120</option>
+            <option value="outlying-islands">Islands · 10</option>
+            <option value="pilot-r34">R34 Heng On network pilot</option>
+            <option value="pilot-a09">A09 Belcher network pilot</option>
+            <option value="hong-kong">Hong Kong macro model</option>
+          </select>
+          <div id="scopeSummary" class="scope-summary" aria-live="polite">
+            <strong>120 official DCCAs · New Territories West</strong>
+            <span>2,000 weighted Agents · age 6–16 · official 3DPN OD routing</span>
+          </div>
+        </section>
+
+        <section class="control-group focus-control-group">
+          <label for="focusSelect">Focus area</label>
+          <select id="focusSelect"></select>
+        </section>
+
+        <fieldset class="layer-controls">
+          <legend>Map layers</legend>
+          <label><input id="buildingsLayerToggle" type="checkbox" checked /> Built form</label>
+          <label><input id="poiLayerToggle" type="checkbox" checked /> Child POIs</label>
+          <label><input id="schoolsLayerToggle" type="checkbox" checked /> Schools</label>
+          <label><input id="transportLayerToggle" type="checkbox" /> Transport</label>
+          <label><input id="agentsLayerToggle" type="checkbox" checked /> Agents</label>
+          <label><input id="flowsLayerToggle" type="checkbox" checked /> Commute flows</label>
+          <label><input id="routesLayerToggle" type="checkbox" checked /> 3D walk network</label>
+        </fieldset>
+
+        <section class="control-group">
+          <div class="range-label">
+            <label for="populationRange">Children</label>
+            <output id="populationOutput" for="populationRange">2000</output>
+          </div>
+          <input id="populationRange" type="range" min="200" max="2200" step="50" value="2000" />
+        </section>
+
+        <section class="control-group compact-control">
+          <label for="seedInput">Random seed</label>
+          <input id="seedInput" type="number" min="1" max="4294967295" step="1" value="91307" />
+        </section>
+
+        <section class="control-group">
+          <div class="range-label">
+            <label for="speedRange">Speed</label>
+            <output id="speedOutput" for="speedRange">36x</output>
+          </div>
+          <input id="speedRange" type="range" min="6" max="120" step="6" value="36" />
+        </section>
+
+        <section class="control-group">
+          <div class="range-label">
+            <label for="timeRange">Clock</label>
+            <output id="timeOutput" for="timeRange">07:00</output>
+          </div>
+          <input id="timeRange" type="range" min="0" max="1439" step="5" value="420" />
+        </section>
+
+        <div class="button-row">
+          <button id="toggleButton" type="button">Pause</button>
+          <button id="resetButton" type="button">Reset</button>
+        </div>
+      </aside>
+
+      <section class="simulation-area" aria-label="Simulation view">
+        <header class="view-bar">
+          <div class="segmented" role="tablist" aria-label="View mode">
+            <button class="tab-button active" data-view="scene" role="tab" aria-selected="true">3D</button>
+            <button class="tab-button" data-view="map" role="tab" aria-selected="false">Map</button>
+            <button class="tab-button" data-view="osm" role="tab" aria-selected="false">OSM</button>
+            <button class="tab-button" data-view="agents" role="tab" aria-selected="false">Agents</button>
+            <button class="tab-button" data-view="routeqa" role="tab" aria-selected="false">Route QA</button>
+            <button class="tab-button" data-view="terrainqa" role="tab" aria-selected="false">Terrain QA</button>
+            <button class="tab-button" data-view="validation" role="tab" aria-selected="false">Validation</button>
+            <button class="tab-button" data-view="kowloonlab" role="tab" aria-selected="false">Kowloon Lab</button>
+            <button class="tab-button" data-view="expansion" role="tab" aria-selected="false">Coverage</button>
+            <button class="tab-button" data-view="crosspack" role="tab" aria-selected="false">Cross-region routes</button>
+            <button class="tab-button" data-view="buildings" role="tab" aria-selected="false">Buildings</button>
+            <button class="tab-button" data-view="rules" role="tab" aria-selected="false">Rules</button>
+            <button class="tab-button" data-view="comparison" role="tab" aria-selected="false">Compare</button>
+            <button class="tab-button" data-view="stats" role="tab" aria-selected="false">Stats</button>
+          </div>
+          <div class="view-tools" aria-label="View zoom controls">
+            <button id="zoomOutButton" type="button" title="Zoom out" aria-label="Zoom out">-</button>
+            <button id="zoomFitButton" type="button" title="Fit view" aria-label="Fit view">Fit</button>
+            <button id="zoomInButton" type="button" title="Zoom in" aria-label="Zoom in">+</button>
+          </div>
+          <div class="clock-pill">
+            <span id="clockDisplay">07:00</span>
+            <span id="dayPhase">Morning</span>
+          </div>
+        </header>
+
+        <canvas id="sceneCanvas" class="view-canvas active" tabindex="0" aria-label="3D child activity simulation"></canvas>
+        <canvas id="mapCanvas" class="view-canvas" tabindex="0" aria-label="2D child activity map"></canvas>
+        <canvas id="osmCanvas" class="view-canvas" tabindex="0" aria-label="OpenStreetMap child activity map"></canvas>
+
+        <aside id="spatialSelectionInspector" class="spatial-selection-inspector" aria-label="Selected map entity" aria-live="polite" hidden>
+          <header>
+            <div>
+              <span id="spatialSelectionType">Selected entity</span>
+              <strong id="spatialSelectionTitle">No selection</strong>
+              <small id="spatialSelectionSubtitle"></small>
+            </div>
+            <button id="spatialSelectionClose" type="button" title="Clear selection" aria-label="Clear selection">&times;</button>
+          </header>
+          <div id="spatialSelectionMetrics" class="spatial-selection-metrics"></div>
+          <section id="spatialSelectionReplay" class="spatial-selection-replay" aria-label="Selected Agent route replay" hidden>
+            <div class="spatial-selection-replay-label">
+              <span>Route replay</span>
+              <output id="spatialSelectionReplayOutput" for="spatialSelectionReplayRange">0%</output>
+            </div>
+            <div class="spatial-selection-replay-controls">
+              <button id="spatialSelectionReplayToggle" type="button" title="Play route" aria-label="Play route">&#9654;</button>
+              <input id="spatialSelectionReplayRange" type="range" min="0" max="100" step="1" value="0" aria-label="Route replay position" />
+            </div>
+          </section>
+          <footer>
+            <button id="spatialSelectionPrimary" type="button">Open audit</button>
+            <button id="spatialSelectionSecondary" type="button">Follow</button>
+          </footer>
+        </aside>
+
+        <section id="agentsView" class="agents-view" aria-label="Agent observatory">
+          <canvas id="agentCanvas" class="agent-observer-canvas" tabindex="0" aria-label="Agent cohort and route map"></canvas>
+
+          <div class="agent-observer-toolbar" aria-label="Agent observer controls">
+            <div class="agent-observer-mode" role="group" aria-label="Agent observer mode">
+              <button id="agentCohortButton" class="active" type="button">Cohort</button>
+              <button id="agentFollowButton" type="button">Follow</button>
+              <button id="agentAuditButton" type="button">Audit</button>
+            </div>
+            <label class="agent-observer-field agent-observer-travel" for="agentTravelFilter">
+              <span>School mode</span>
+              <select id="agentTravelFilter">
+                <option value="all">All travel</option>
+                <option value="walk">Walk · 3DPN</option>
+                <option value="mechanised">Mechanised / multimodal</option>
+              </select>
+            </label>
+            <label class="agent-observer-field agent-observer-state" for="agentStateFilter">
+              <span>State</span>
+              <select id="agentStateFilter">
+                <option value="all">All states</option>
+                <option value="sleep">Sleep</option>
+                <option value="home">Home</option>
+                <option value="commute">Commute</option>
+                <option value="school">School</option>
+                <option value="outdoor">Outdoor</option>
+                <option value="activity">Activity</option>
+              </select>
+            </label>
+            <label class="agent-observer-field agent-observer-age" for="agentAgeFilter">
+              <span>Age</span>
+              <select id="agentAgeFilter">
+                <option value="all">All ages</option>
+              </select>
+            </label>
+            <label class="agent-observer-field agent-observer-area" for="agentAreaFilter">
+              <span>Home DCCA</span>
+              <select id="agentAreaFilter">
+                <option value="all">All DCCAs</option>
+              </select>
+            </label>
+            <div class="agent-picker" aria-label="Selected Agent">
+              <button id="previousAgentButton" type="button" title="Previous Agent" aria-label="Previous Agent">&larr;</button>
+              <label for="agentIdInput">
+                <span>Agent</span>
+                <input id="agentIdInput" type="number" min="1" step="1" value="1" />
+              </label>
+              <button id="nextAgentButton" type="button" title="Next Agent" aria-label="Next Agent">&rarr;</button>
+            </div>
+          </div>
+
+          <aside class="agent-observer-readout" aria-label="Selected Agent details">
+            <header>
+              <span id="agentObserverEyebrow">Cohort selection</span>
+              <strong id="agentObserverTitle">2,000 Agents</strong>
+              <small id="agentObserverSubtitle">Hong Kong Island</small>
+            </header>
+            <div class="agent-observer-metrics">
+              <div><span>State</span><strong id="agentObserverState">Mixed</strong></div>
+              <div><span>Age</span><strong id="agentObserverAge">6-16</strong></div>
+              <div><span>Home</span><strong id="agentObserverHome">80 DCCAs</strong></div>
+              <div><span>Mode</span><strong id="agentObserverMode">Mixed</strong></div>
+              <div><span>MVPA</span><strong id="agentObserverMvpa">0.0 min</strong></div>
+              <div><span>Trips</span><strong id="agentObserverTrips">0</strong></div>
+            </div>
+            <div class="agent-state-timeline">
+              <div class="agent-timeline-labels"><span>00:00</span><span>12:00</span><span>24:00</span></div>
+              <div id="agentTimelineTrack" class="agent-timeline-track" aria-label="Selected Agent state timeline"></div>
+            </div>
+          </aside>
+
+          <section id="agentRouteAudit" class="agent-route-audit" aria-label="Selected route audit" hidden>
+            <header>
+              <div>
+                <span>Route truth audit</span>
+                <strong id="agentRouteTitle">No completed route</strong>
+              </div>
+              <select id="agentTripSelect" aria-label="Select Agent trip"></select>
+            </header>
+            <canvas id="agentProfileCanvas" aria-label="Distance and elevation profile"></canvas>
+            <div class="agent-route-metrics">
+              <div><span>Geometry</span><strong id="agentRouteGeometry">n/a</strong></div>
+              <div><span>On network / horizontal connector</span><strong id="agentRouteNetwork">n/a</strong></div>
+              <div><span>3D / 2D distance</span><strong id="agentRouteDistance">n/a</strong></div>
+              <div><span>3D / 2D time</span><strong id="agentRouteTime">n/a</strong></div>
+              <div><span>Ascent</span><strong id="agentRouteAscent">n/a</strong></div>
+              <div><span>Max segment grade</span><strong id="agentRouteGrade">n/a</strong></div>
+              <div><span>QA status</span><strong id="agentRouteQuality">n/a</strong></div>
+              <div><span>Stair / ramp</span><strong id="agentRouteVertical">n/a</strong></div>
+              <div><span>Covered / mechanical</span><strong id="agentRouteFeatures">n/a</strong></div>
+              <div><span>Endpoint H start / end</span><strong id="agentRouteEndpoints">n/a</strong></div>
+              <div><span>AccessTime evidence</span><strong id="agentRouteAccessTime">n/a</strong></div>
+              <div><span>Access / line-haul / egress</span><strong id="agentRouteLegSplit">n/a</strong></div>
+              <div><span>Board / alight</span><strong id="agentRouteStops">n/a</strong></div>
+            </div>
+          </section>
+
+          <div class="agent-observer-legend" aria-label="Agent state and route legend">
+            <div class="view-legend-heading">
+              <strong>Agent map key</strong>
+              <small>Circle colour = current state · cluster number = represented Agents</small>
+            </div>
+            <div class="view-legend-items">
+              <span><i style="--legend-color:#7a67a8"></i>Sleep</span>
+              <span><i style="--legend-color:#3d78a7"></i>Home</span>
+              <span><i style="--legend-color:#d99434"></i>Commute</span>
+              <span><i style="--legend-color:#247b72"></i>School</span>
+              <span><i style="--legend-color:#6f9d45"></i>Outdoor</span>
+              <span><i style="--legend-color:#c76571"></i>Activity</span>
+              <span class="agent-route-key"><i class="route-swatch network"></i>Official 3DPN route</span>
+              <span class="agent-route-key"><i class="route-swatch multimodal"></i>Spatial multimodal route</span>
+              <span class="agent-route-key"><i class="route-swatch connector"></i>Unsurveyed endpoint connector</span>
+              <span class="agent-route-key"><i class="route-swatch schematic"></i>Mechanised timing fallback</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="routeQaView" class="route-qa-view" aria-label="Route quality and destination calibration">
+          <header class="route-qa-header">
+            <div>
+              <span id="routeQaKicker" class="route-qa-kicker">Hong Kong Island · 80 DCCAs</span>
+              <h2 id="routeQaTitle">Route and destination calibration</h2>
+              <p id="routeQaRunLabel">Loading paired route-quality audit</p>
+            </div>
+            <div id="routeQaModeGroup" class="route-qa-mode" role="group" aria-label="Route calibration comparison">
+              <button id="routeQaBaselineButton" type="button">Before</button>
+              <button id="routeQaCalibratedButton" class="active" type="button">Calibrated</button>
+            </div>
+          </header>
+
+          <div class="route-qa-key-grid" aria-label="Route quality metrics">
+            <article>
+              <span>School walk</span>
+              <strong id="routeQaSchoolTime">n/a</strong>
+              <small id="routeQaSchoolTimeDelta">TCS walk-only target: 12 min</small>
+            </article>
+            <article>
+              <span>Connector p95</span>
+              <strong id="routeQaConnector">n/a</strong>
+              <small id="routeQaConnectorDelta">unsurveyed endpoint links</small>
+            </article>
+            <article>
+              <span>Review / critical</span>
+              <strong id="routeQaIssueRate">n/a</strong>
+              <small id="routeQaIssueDelta">walking routes flagged</small>
+            </article>
+            <article>
+              <span>Network routing</span>
+              <strong id="routeQaNetworkShare">n/a</strong>
+              <small id="routeQaFailureRate">directed 3DPN completion</small>
+            </article>
+            <article>
+              <span>TCS duration shape</span>
+              <strong id="routeQaDurationShape">n/a</strong>
+              <small id="routeQaDurationTarget">target: <=10 64% / >15 15%</small>
+            </article>
+            <article>
+              <span>Exact network access</span>
+              <strong id="routeQaSchoolAccess">n/a</strong>
+              <small id="routeQaSchoolAccessNote">school and POI-chain candidates</small>
+            </article>
+          </div>
+
+          <div class="route-qa-workspace">
+            <section class="route-qa-map-panel" aria-labelledby="routeQaMapTitle">
+              <div class="route-qa-panel-heading">
+                <div>
+                  <h3 id="routeQaMapTitle">DCCA critical-route rate</h3>
+                  <span id="routeQaMapSubtitle">Calibrated reference runs</span>
+                </div>
+                <div class="route-qa-filters">
+                  <label for="routeQaPurposeSelect">
+                    <span>Purpose</span>
+                    <select id="routeQaPurposeSelect">
+                      <option value="all">All walking trips</option>
+                      <option value="school">School</option>
+                      <option value="postschool">School to POI</option>
+                      <option value="home">Return home</option>
+                    </select>
+                  </label>
+                  <label for="routeQaIssueSelect">
+                    <span>Issue</span>
+                    <select id="routeQaIssueSelect">
+                      <option value="all">All critical</option>
+                      <option value="connector">Endpoint connector</option>
+                      <option value="detour">Detour / length</option>
+                      <option value="duration">School duration</option>
+                      <option value="vertical">Vertical geometry</option>
+                      <option value="network">Network share</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <canvas id="routeQaCanvas" aria-label="DCCA map of route quality flags"></canvas>
+              <div class="route-qa-map-legend" aria-label="DCCA critical-route share legend">
+                <div class="view-legend-heading">
+                  <strong id="routeQaLegendTitle">DCCA critical-route share</strong>
+                  <small id="routeQaLegendNote">Fill = weighted share of audited walking routes rated critical</small>
+                </div>
+                <div class="view-legend-items">
+                  <span><i style="--qa-color:#d7e5df"></i>0-5%</span>
+                  <span><i style="--qa-color:#e3bf62"></i>5-15%</span>
+                  <span><i style="--qa-color:#d77b48"></i>15-30%</span>
+                  <span><i style="--qa-color:#b94f55"></i>&gt;30%</span>
+                  <span><i style="--qa-color:#e5e9e3"></i>No audited routes</span>
+                </div>
+                <div class="qa-status-meaning">
+                  <span><b class="review">Review</b> retained route with a diagnostic flag</span>
+                  <span><b class="critical">Critical</b> high-priority geometry or duration check</span>
+                </div>
+                <div id="routeQaCauseLedger" class="route-qa-cause-ledger" aria-label="Live route issue counts"></div>
+              </div>
+            </section>
+
+            <aside class="route-qa-outliers" aria-labelledby="routeQaOutlierTitle">
+              <div class="route-qa-panel-heading">
+                <div>
+                  <h3 id="routeQaOutlierTitle">Live route review</h3>
+                  <span id="routeQaOutlierSubtitle">Completed walking trips in this run</span>
+                </div>
+              </div>
+              <div id="routeQaOutlierList" class="route-qa-outlier-list"></div>
+            </aside>
+          </div>
+
+          <footer class="route-qa-method">
+            <div><span>Network</span><strong id="routeQaNetworkMethod">Official LandsD directed 3DPN A*</strong></div>
+            <div><span>Endpoints</span><strong id="routeQaEndpointMethod">CSDI / EDB / iGeoCom points use an explicit unsurveyed connector to the primary graph</strong></div>
+            <div><span>Calibration</span><strong id="routeQaCalibrationMethod">Directed 3DPN K-nearest schools + TCS duration targets + EDB capacity + connector quality</strong></div>
+            <div><span>Claim boundary</span><strong id="routeQaClaimBoundary">No observed child address, enrolment, route trace or building entrance</strong></div>
+          </footer>
+        </section>
+
+        <section id="terrainQaView" class="terrain-qa-view" aria-label="Whole Hong Kong terrain and route reliability audit">
+          <header class="terrain-qa-header">
+            <div>
+              <span class="terrain-qa-kicker">V12.12 · five-region terrain reliability gate</span>
+              <h2>Source 3D versus bounded sensitivity</h2>
+              <p>Same endpoints, exact directed paths and a fixed age-11 walking profile across all 452 DCCAs</p>
+            </div>
+            <div class="terrain-qa-status-pair" aria-label="Terrain reliability status">
+              <span id="terrainQaInternalStatus" class="terrain-qa-status pass">Internal route audit · pass</span>
+              <span id="terrainQaExternalStatus" class="terrain-qa-status pending">External elevation review · pending</span>
+            </div>
+          </header>
+
+          <div class="terrain-qa-reading-key" aria-label="Terrain reliability evidence legend">
+            <strong>Evidence key</strong>
+            <span><i class="terrain-qa-swatch source"></i>Source 3D: official LandsD height, unchanged baseline</span>
+            <span><i class="terrain-qa-swatch bounded"></i>Bounded: diagnostic cost only on short unclassified edges</span>
+            <span><i class="terrain-qa-swatch changed"></i>Changed: paired OD selects a different exact path</span>
+            <span><b class="gate-mark pass">PASS</b> internal reproducibility gate met</span>
+            <span><b class="gate-mark pending">PENDING</b> no independent height or child-route truth</span>
+          </div>
+
+          <div class="terrain-qa-key-grid" aria-label="Terrain reliability summary">
+            <article><span>DCCA coverage</span><strong id="terrainQaDccaMetric">452 / 452</strong><small>two sentinel ODs per DCCA</small></article>
+            <article><span>Paired exact ODs</span><strong id="terrainQaOdMetric">904</strong><small id="terrainQaOriginMetric">902 residential · 2 network sentinel</small></article>
+            <article><span>Short critical edges</span><strong id="terrainQaEdgeMetric">6,323</strong><small>unique flagged source records</small></article>
+            <article><span>Path topology changed</span><strong id="terrainQaChangedMetric">0.9%</strong><small>source versus bounded</small></article>
+            <article><span>Mean walk-time delta</span><strong id="terrainQaTimeMetric">-0.004 min</strong><small>standardized diagnostic profile</small></article>
+            <article><span>MVPA threshold flips</span><strong id="terrainQaMvpaMetric">4</strong><small>not a population health estimate</small></article>
+          </div>
+
+          <div class="terrain-qa-workspace">
+            <section class="terrain-qa-panel terrain-qa-map-panel" aria-labelledby="terrainQaMapTitle">
+              <div class="terrain-qa-panel-heading terrain-qa-map-heading">
+                <div>
+                  <h3 id="terrainQaMapTitle">DCCA paired-route sensitivity</h3>
+                  <span id="terrainQaMapSubtitle">All five regional packs · topology change share</span>
+                </div>
+                <div class="terrain-qa-filters">
+                  <label for="terrainQaRegionSelect">
+                    <span>Region</span>
+                    <select id="terrainQaRegionSelect">
+                      <option value="all">Whole Hong Kong · 452 DCCAs</option>
+                      <option value="hki">Hong Kong Island · 80</option>
+                      <option value="kowloon">Kowloon · 135</option>
+                      <option value="ntEast">New Territories East · 107</option>
+                      <option value="ntWest">New Territories West · 120</option>
+                      <option value="islands">Outlying Islands · 10</option>
+                    </select>
+                  </label>
+                  <label for="terrainQaMetricSelect">
+                    <span>Map metric</span>
+                    <select id="terrainQaMetricSelect">
+                      <option value="topologyChangedShare">Changed path share</option>
+                      <option value="boundedEdgeExposureShare">Bounded-edge exposure</option>
+                      <option value="maxAbsoluteWalkingMinuteDelta">Maximum time effect</option>
+                      <option value="sourceCriticalRouteShare">Source critical-route share</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <canvas id="terrainQaCanvas" tabindex="0" aria-label="DCCA map of paired terrain sensitivity results"></canvas>
+              <div class="terrain-qa-map-legend" aria-label="Terrain QA map legend">
+                <div class="view-legend-heading">
+                  <strong id="terrainQaLegendTitle">Changed path share</strong>
+                  <small id="terrainQaLegendNote">Fill = share of two DCCA sentinel ODs selecting a different path</small>
+                </div>
+                <div id="terrainQaLegendItems" class="view-legend-items"></div>
+                <div class="terrain-qa-symbol-key">
+                  <span><i class="terrain-qa-dot"></i>DCCA with at least one topology change</span>
+                  <span><i class="terrain-qa-outline"></i>Selected DCCA</span>
+                </div>
+              </div>
+            </section>
+
+            <aside class="terrain-qa-panel terrain-qa-detail" aria-labelledby="terrainQaDetailTitle">
+              <div class="terrain-qa-panel-heading">
+                <div>
+                  <h3 id="terrainQaDetailTitle">Select a DCCA</h3>
+                  <span id="terrainQaDetailSubtitle">Click the map or an affected route</span>
+                </div>
+              </div>
+              <dl id="terrainQaDetailMetrics" class="terrain-qa-detail-metrics"></dl>
+              <p id="terrainQaDetailNote" class="terrain-qa-detail-note">The map reports two deterministic endpoint checks per DCCA, not a local population estimate.</p>
+            </aside>
+
+            <section class="terrain-qa-panel terrain-qa-regions" aria-labelledby="terrainQaRegionsTitle">
+              <div class="terrain-qa-panel-heading">
+                <div>
+                  <h3 id="terrainQaRegionsTitle">Regional comparison</h3>
+                  <span>Edge records include each pack's declared context buffer</span>
+                </div>
+              </div>
+              <div id="terrainQaRegionRows" class="terrain-qa-region-rows"></div>
+            </section>
+
+            <section class="terrain-qa-panel terrain-qa-routes" aria-labelledby="terrainQaRoutesTitle">
+              <div class="terrain-qa-panel-heading">
+                <div>
+                  <h3 id="terrainQaRoutesTitle">Largest paired OD effects</h3>
+                  <span>Walking-time delta uses 72 m/min; click a row to locate its DCCA</span>
+                </div>
+              </div>
+              <div id="terrainQaRouteRows" class="terrain-qa-route-rows"></div>
+            </section>
+
+            <aside class="terrain-qa-panel terrain-qa-features" aria-labelledby="terrainQaFeaturesTitle">
+              <div class="terrain-qa-panel-heading">
+                <div>
+                  <h3 id="terrainQaFeaturesTitle">Flagged source-edge types</h3>
+                  <span id="terrainQaFeaturesSubtitle">Whole-Hong-Kong five-pack records</span>
+                </div>
+              </div>
+              <div id="terrainQaFeatureRows" class="terrain-qa-feature-rows"></div>
+            </aside>
+
+            <section class="terrain-qa-panel terrain-qa-gates" aria-labelledby="terrainQaGatesTitle">
+              <div class="terrain-qa-panel-heading">
+                <div>
+                  <h3 id="terrainQaGatesTitle">Reliability gates</h3>
+                  <span>A* is checked against zero-heuristic Dijkstra under both cost profiles</span>
+                </div>
+              </div>
+              <div id="terrainQaGateRows" class="terrain-qa-gate-rows"></div>
+            </section>
+          </div>
+
+          <footer class="terrain-qa-claim-boundary">
+            <strong>Claim boundary</strong>
+            <p><b>Supported:</b> complete five-region edge screening, exact paired routing for 904 fixed endpoint ODs and profile-specific A* exactness checks.</p>
+            <p><b>Baseline:</b> the running ABM continues to use unmodified official source-3D geometry; bounded sensitivity is read-only evidence.</p>
+            <p><b>Not supported:</b> corrected elevation, observed child route choice, representative territory-wide effects or external health validation.</p>
+          </footer>
+        </section>
+
+        <section id="validationView" class="validation-view" aria-label="Internal robustness and validation evidence">
+          <header class="validation-header">
+            <div>
+              <span id="validationKicker" class="validation-kicker">V12.7.1 · Hong Kong Island</span>
+              <h2>Robustness and validation evidence</h2>
+              <p id="validationRunLabel">Loading the frozen-baseline sensitivity experiment</p>
+            </div>
+            <div class="validation-status-pair" aria-label="Validation status">
+              <span id="validationInternalStatus" class="validation-status pass">Internal robustness · pass</span>
+              <span id="validationExternalStatus" class="validation-status pending">External validation · pending</span>
+            </div>
+          </header>
+
+          <p id="validationScopeNote" class="validation-scope-note">This evidence applies directly to the Hong Kong Island model scope.</p>
+
+          <div class="validation-reading-key" aria-label="Validation page legend">
+            <strong>Evidence key</strong>
+            <span><i class="validation-swatch low"></i>Low parameter level</span>
+            <span><i class="validation-swatch baseline"></i>Frozen V12.6 baseline</span>
+            <span><i class="validation-swatch high"></i>High parameter level</span>
+            <span><b class="gate-mark pass">PASS</b> predeclared internal gate met</span>
+            <span><b class="gate-mark pending">PENDING</b> independent reference data absent</span>
+            <span><i class="validation-swatch mechanism"></i>Mechanism: raw Agent counts affect decisions</span>
+            <span><i class="validation-swatch observation"></i>Observation: Census-weighted, read-only</span>
+          </div>
+
+          <div class="validation-key-grid" aria-label="Validation experiment summary">
+            <article>
+              <span>Internal gates</span>
+              <strong id="validationGateMetric">0 / 0</strong>
+              <small>baseline, robustness and route-cost audit</small>
+            </article>
+            <article>
+              <span>Full-day simulations</span>
+              <strong id="validationRunMetric">0</strong>
+              <small id="validationRunDesign">common seeds and paired conditions</small>
+            </article>
+            <article>
+              <span>DCCA coverage</span>
+              <strong id="validationDccaMetric">0 / 80</strong>
+              <small>terrain × built form × route-risk strata</small>
+            </article>
+            <article>
+              <span>Fixed-OD route audit</span>
+              <strong id="validationRouteMetric">0</strong>
+              <small id="validationRouteDesign">official directed 3DPN A*</small>
+            </article>
+            <article>
+              <span>External reference</span>
+              <strong id="validationExternalMetric">Pending</strong>
+              <small>held-out child route/time evidence not linked</small>
+            </article>
+            <article>
+              <span>Population-scale diagnostic</span>
+              <strong id="populationScaleRunMetric">0</strong>
+              <small id="populationScaleRunDesign">3 sizes × 4 common seeds</small>
+            </article>
+          </div>
+
+          <div class="validation-workspace">
+            <section class="validation-panel validation-population-scale" aria-labelledby="populationScaleTitle">
+              <div class="validation-panel-heading population-scale-heading">
+                <div>
+                  <h3 id="populationScaleTitle">Population-scale diagnostic</h3>
+                  <span>Same represented population · computational Agents only vary from 900 to 2,000</span>
+                </div>
+                <strong id="populationScaleStatus" class="population-scale-status">Loading</strong>
+              </div>
+
+              <div class="population-scale-boundary" aria-label="Population-scale ledger boundary">
+                <div class="mechanism">
+                  <b>Mechanism ledger</b>
+                  <span>School load, POI occupancy, neighbours, contact and rerouting count each computational Agent once.</span>
+                </div>
+                <div class="observation">
+                  <b>Observation ledger</b>
+                  <span>Census weights summarize represented children after simulation and never feed back into decisions.</span>
+                </div>
+                <div class="survey">
+                  <b>TCS boundary</b>
+                  <span>No TCS respondent weight enters either local interaction ledger.</span>
+                </div>
+              </div>
+
+              <div id="populationScaleTable" class="population-scale-table" aria-label="Population-scale comparison table"></div>
+
+              <div class="population-scale-evidence">
+                <div>
+                  <h4>Stability classification</h4>
+                  <div id="populationScaleStabilityList" class="population-scale-stability-list"></div>
+                </div>
+                <div>
+                  <h4>Parallel capacity ledgers at 2,000 Agents</h4>
+                  <div id="populationScaleLedgerList" class="population-scale-ledger-list"></div>
+                  <div id="populationScaleFindingList" class="population-scale-finding-list"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="validation-panel validation-effects" aria-labelledby="validationEffectsTitle">
+              <div class="validation-panel-heading">
+                <div>
+                  <h3 id="validationEffectsTitle">Parameter sensitivity</h3>
+                  <span>Grouped one-at-a-time low/base/high envelope · common random seeds</span>
+                </div>
+              </div>
+              <div id="validationEffectList" class="validation-effect-list"></div>
+            </section>
+
+            <aside class="validation-panel validation-ranges" aria-labelledby="validationRangesTitle">
+              <div class="validation-panel-heading">
+                <div>
+                  <h3 id="validationRangesTitle">Outcome envelope</h3>
+                  <span>Range across the 16 perturbed conditions</span>
+                </div>
+              </div>
+              <div id="validationOutcomeList" class="validation-outcome-list"></div>
+            </aside>
+
+            <section class="validation-panel validation-route-cost" aria-labelledby="validationRouteCostTitle">
+              <div class="validation-panel-heading">
+                <div>
+                  <h3 id="validationRouteCostTitle">Fixed-OD 3D route-cost audit</h3>
+                  <span>One median realised OD per DCCA · destination and Agent held constant</span>
+                </div>
+              </div>
+              <div id="validationRouteCostList" class="validation-route-cost-list"></div>
+            </section>
+
+            <aside class="validation-panel validation-dcca" aria-labelledby="validationDccaTitle">
+              <div class="validation-panel-heading">
+                <div>
+                  <h3 id="validationDccaTitle">Most parameter-sensitive DCCAs</h3>
+                  <span>Ranked by critical-route share range</span>
+                </div>
+              </div>
+              <div id="validationDccaList" class="validation-dcca-list"></div>
+            </aside>
+
+            <section class="validation-panel validation-gates" aria-labelledby="validationGatesTitle">
+              <div class="validation-panel-heading">
+                <div>
+                  <h3 id="validationGatesTitle">Acceptance gates</h3>
+                  <span>Passing an internal gate does not supply external ground truth</span>
+                </div>
+              </div>
+              <div id="validationGateList" class="validation-gate-list"></div>
+            </section>
+          </div>
+
+          <footer class="validation-claim-boundary">
+            <strong>Claim boundary</strong>
+            <div id="validationClaimList"></div>
+          </footer>
+        </section>
+
+        <section id="kowloonLabView" class="kowloon-lab-view" aria-label="Kowloon calibration and multimodal routing evidence">
+          <header class="kowloon-lab-header">
+            <div>
+              <span class="kowloon-lab-kicker">V12.9.5 · interactive selection over the V12.9.4 evidence base</span>
+              <h2>Kowloon calibration and multimodal laboratory</h2>
+              <p id="kowloonLabRunLabel">Loading the frozen 12-run experiment</p>
+            </div>
+            <div class="kowloon-lab-status-pair" aria-label="Kowloon validation status">
+              <span id="kowloonLabInternalStatus" class="kowloon-lab-status pass">Internal holdout · pass</span>
+              <span id="kowloonLabExternalStatus" class="kowloon-lab-status pending">External validation · pending</span>
+            </div>
+          </header>
+
+          <div class="kowloon-lab-reading-key" aria-label="Kowloon laboratory legend">
+            <strong>Evidence key</strong>
+            <span><i class="kowloon-lab-swatch estimation"></i>Estimation: sets runtime targets</span>
+            <span><i class="kowloon-lab-swatch holdout"></i>Household holdout: evaluation only</span>
+            <span><i class="kowloon-lab-swatch model"></i>Model: four-seed mean at 2,000 Agents</span>
+            <span><b class="gate-mark pass">PASS</b> predeclared internal gate met</span>
+            <span><b class="gate-mark pending">PENDING</b> independent contemporary evidence absent</span>
+          </div>
+
+          <div class="kowloon-lab-key-grid" aria-label="Kowloon experiment summary">
+            <article><span>Internal gates</span><strong id="kowloonLabGateMetric">0 / 0</strong><small>sample, holdout, routing and scale</small></article>
+            <article><span>Household holdout</span><strong id="kowloonLabHoldoutMetric">0</strong><small>never used to fit parameters</small></article>
+            <article><span>Spatial school journeys</span><strong id="kowloonLabSpatialMetric">0%</strong><small>3DPN walk or multimodal geometry</small></article>
+            <article><span>Simulation runs</span><strong id="kowloonLabRunMetric">0</strong><small>three populations × four common seeds</small></article>
+          </div>
+
+          <div class="kowloon-lab-workspace">
+            <section class="kowloon-lab-panel kowloon-lab-map-panel" aria-labelledby="kowloonLabMapTitle">
+              <div class="kowloon-lab-panel-heading">
+                <div>
+                  <h3 id="kowloonLabMapTitle">Live spatial mobility layers</h3>
+                  <span>Network lines are sampled for display; each realised OD uses the complete graph</span>
+                </div>
+                <strong id="kowloonLabLiveStatus">Select Kowloon scope for live Agents</strong>
+              </div>
+              <canvas id="kowloonLabCanvas" tabindex="0" aria-label="Kowloon road rail ferry pedestrian network and Agent map"></canvas>
+              <div class="kowloon-lab-map-legend" aria-label="Kowloon multimodal map legend">
+                <span><i class="kowloon-map-line dcca"></i>2019 DCCA</span>
+                <span><i class="kowloon-map-line pedestrian"></i>LandsD 3DPN</span>
+                <span><i class="kowloon-map-line road"></i>OSM road</span>
+                <span><i class="kowloon-map-line rail"></i>OSM rail</span>
+                <span><i class="kowloon-map-line ferry"></i>OSM ferry</span>
+                <span><i class="kowloon-map-point agent"></i>Child Agent</span>
+              </div>
+            </section>
+
+            <section class="kowloon-lab-panel kowloon-lab-calibration" aria-labelledby="kowloonLabCalibrationTitle">
+              <div class="kowloon-lab-panel-heading">
+                <div>
+                  <h3 id="kowloonLabCalibrationTitle">Estimation to holdout transfer</h3>
+                  <span>Broad mode share and mechanised school-journey mean by school stage</span>
+                </div>
+              </div>
+              <div id="kowloonLabGroupRows" class="kowloon-lab-group-rows"></div>
+            </section>
+
+            <section class="kowloon-lab-panel kowloon-lab-time" aria-labelledby="kowloonLabTimeTitle">
+              <div class="kowloon-lab-panel-heading">
+                <div>
+                  <h3 id="kowloonLabTimeTitle">Spatial journey decomposition</h3>
+                  <span>Mean mechanised trip minutes · access and egress are activity-accounted walking; MVPA uses the age/speed METy threshold</span>
+                </div>
+              </div>
+              <div id="kowloonLabTimingRows" class="kowloon-lab-timing-rows"></div>
+            </section>
+
+            <aside class="kowloon-lab-panel kowloon-lab-network" aria-labelledby="kowloonLabNetworkTitle">
+              <div class="kowloon-lab-panel-heading">
+                <div>
+                  <h3 id="kowloonLabNetworkTitle">Multimodal graph ledger</h3>
+                  <span>OSM snapshot 2026-09-01 · complete runtime topology</span>
+                </div>
+              </div>
+              <div id="kowloonLabNetworkCards" class="kowloon-lab-network-cards"></div>
+            </aside>
+
+            <section class="kowloon-lab-panel kowloon-lab-scale" aria-labelledby="kowloonLabScaleTitle">
+              <div class="kowloon-lab-panel-heading">
+                <div>
+                  <h3 id="kowloonLabScaleTitle">Computational population stability</h3>
+                  <span>Same represented population; only the number of computational Agents changes</span>
+                </div>
+              </div>
+              <div id="kowloonLabScaleRows" class="kowloon-lab-scale-rows"></div>
+            </section>
+
+            <aside class="kowloon-lab-panel kowloon-lab-gates" aria-labelledby="kowloonLabGatesTitle">
+              <div class="kowloon-lab-panel-heading">
+                <div>
+                  <h3 id="kowloonLabGatesTitle">Acceptance gates</h3>
+                  <span>Passing is internal evidence, not external validation</span>
+                </div>
+              </div>
+              <div id="kowloonLabGateList" class="kowloon-lab-gate-list"></div>
+            </aside>
+          </div>
+
+          <footer class="kowloon-lab-claim-boundary">
+            <strong>Claim boundary</strong>
+            <p><b>Supported:</b> a geographically scoped TCS household holdout, 12-run scale test, exact directed 3DPN walking access, and spatial OSM road/rail/ferry topology.</p>
+            <p><b>Not supported:</b> contemporary external child-route validation, timetable-specific bus service, observed school enrolment, or measured rail/ferry elevation.</p>
+            <p><b>Frozen mechanism boundary:</b> Census and TCS weights do not drive school load, POI occupancy, crowding or contact.</p>
+          </footer>
+        </section>
+
+        <section id="crosspackView" class="crosspack-view" aria-label="Cross-region route audit"></section>
+        <section id="expansionView" class="expansion-view" aria-label="Regional 3D pedestrian routing expansion evidence">
+          <header class="expansion-header">
+            <div>
+              <span class="expansion-kicker">V12.11 · whole-Hong-Kong regional routing coverage</span>
+              <h2>Five-region 3D pedestrian routing atlas</h2>
+              <p>452 official DCCAs · component-aware exact directed A*</p>
+            </div>
+            <div class="expansion-status-pair" aria-label="Expansion status">
+              <label class="expansion-region-picker" for="expansionRegionSelect">
+                <span>Runtime region</span>
+                <select id="expansionRegionSelect">
+                  <option value="ntWest" selected>New Territories West · 120 DCCAs</option>
+                  <option value="islands">Outlying Islands · 10 DCCAs</option>
+                  <option value="ntEast">New Territories East · 107 DCCAs</option>
+                  <option value="kowloon">Continuous Kowloon · 135 DCCAs</option>
+                  <option value="wts">Wong Tai Sin proof · 25 DCCAs</option>
+                </select>
+              </label>
+              <span id="expansionRegionalStatus" class="expansion-status pass">NT West graph · verified</span>
+              <span id="expansionPendingStatus" class="expansion-status pending">NT West Agent runtime · internal diagnostic</span>
+            </div>
+          </header>
+
+          <div class="expansion-reading-key" aria-label="Expansion evidence legend">
+            <strong>Evidence levels</strong>
+            <span><b class="expansion-level source">SOURCE</b> official data prepared offline</span>
+            <span><b class="expansion-level runtime">RUNTIME</b> exact graph loaded and queried</span>
+            <span><b class="expansion-level pending">DIAGNOSTIC</b> synthetic behaviour is not externally calibrated</span>
+          </div>
+
+          <div class="expansion-summary" aria-label="Whole Hong Kong source readiness">
+            <article><span>Official DCCAs</span><strong id="expansionHkDcca">452 / 452</strong><small>boundary source ready</small></article>
+            <article><span>3DPN source graph</span><strong id="expansionHkGraph">1.43m nodes</strong><small id="expansionHkEdges">1.50m edges</small></article>
+            <article><span>2 km source tiles</span><strong id="expansionHkTiles">376</strong><small id="expansionHkLength">9,601 km 3D</small></article>
+            <article><span>Children represented</span><strong id="expansionHkChildren">602,857</strong><small>ages 6-16 Census proxy</small></article>
+            <article><span>Schools / child POIs</span><strong id="expansionHkPlaces">3,489 / 5,206</strong><small>real point sources</small></article>
+          </div>
+
+          <div class="expansion-workspace">
+            <section class="expansion-map-panel" aria-labelledby="expansionMapTitle">
+              <div class="expansion-map-heading">
+                <div>
+                  <h3 id="expansionMapTitle">New Territories West routing region</h3>
+                  <span id="expansionLoadStatus">Official graph ready to load</span>
+                </div>
+                <div class="expansion-route-picker">
+                  <button id="previousExpansionRoute" type="button" title="Previous verified route" aria-label="Previous verified route">&larr;</button>
+                  <label for="expansionRouteSelect">
+                    <span>Verified OD</span>
+                    <select id="expansionRouteSelect"></select>
+                  </label>
+                  <button id="nextExpansionRoute" type="button" title="Next verified route" aria-label="Next verified route">&rarr;</button>
+                </div>
+              </div>
+              <canvas id="expansionCanvas" aria-label="DCCA, 3D pedestrian network and exact route map"></canvas>
+              <div class="expansion-map-legend" aria-label="Expansion map legend">
+                <div class="view-legend-heading">
+                  <strong>Map and route key</strong>
+                  <small>All geometry uses HK1980 coordinates; elevation profile uses HKPD metres</small>
+                </div>
+                <div class="view-legend-items">
+                  <span><i class="expansion-line dcca"></i>2019 DCCA boundary</span>
+                  <span><i class="expansion-line tile"></i>2 km source tile</span>
+                  <span><i class="expansion-line network"></i>Official 3DPN sample</span>
+                  <span><i class="expansion-line route"></i>Exact directed A* route</span>
+                  <span><i class="expansion-point home"></i>Positive-evidence home anchor</span>
+                  <span><i class="expansion-point fallback"></i>Audited fallback route candidate</span>
+                  <span><i class="expansion-point school"></i>EDB school</span>
+                  <span><i class="expansion-point poi"></i>Child POI</span>
+                </div>
+              </div>
+            </section>
+
+            <aside class="expansion-ledger" aria-labelledby="expansionLedgerTitle">
+              <div class="expansion-ledger-heading">
+                <span>Runtime proof</span>
+                <h3 id="expansionLedgerTitle">120-DCCA graph ledger</h3>
+              </div>
+              <dl class="expansion-ledger-list">
+                <div><dt>Graph</dt><dd id="expansionRegionalGraph">62,092 nodes · 67,028 edges</dd></div>
+                <div><dt>Coverage</dt><dd id="expansionRegionalCoverage">25 DCCAs · 10 chunks</dd></div>
+                <div><dt>Primary / endpoint-eligible</dt><dd id="expansionRegionalComponent">99.60% / n/a</dd></div>
+                <div><dt>Network length</dt><dd id="expansionRegionalLength">470.5 km 3D</dd></div>
+                <div><dt>Context buffer</dt><dd id="expansionRegionalBuffer">600 m · 27,863 edges</dd></div>
+                <div><dt>Endpoint evidence</dt><dd id="expansionRegionalPlaces">593 homes · 149 schools · 295 POIs</dd></div>
+                <div><dt>Home evidence</dt><dd id="expansionResidentialEvidence">Loading audit</dd></div>
+                <div><dt>Population proxy</dt><dd id="expansionRegionalChildren">n/a</dd></div>
+                <div><dt>Cross-tile audit</dt><dd id="expansionCrossTile">276 edges · 36 tested ODs</dd></div>
+              </dl>
+
+              <section class="expansion-route-readout" aria-labelledby="expansionRouteTitle">
+                <h4 id="expansionRouteTitle">Selected exact route</h4>
+                <div class="expansion-route-metrics">
+                  <div><span>OD</span><strong id="expansionRouteOd">Loading</strong></div>
+                  <div><span>3D distance</span><strong id="expansionRouteDistance">n/a</strong></div>
+                  <div><span>Generalized cost</span><strong id="expansionRouteCost">n/a</strong></div>
+                  <div><span>Vertical gain</span><strong id="expansionRouteGain">n/a</strong></div>
+                  <div><span>Source tiles</span><strong id="expansionRouteTiles">n/a</strong></div>
+                  <div><span>Covered / stairs</span><strong id="expansionRouteFeatures">n/a</strong></div>
+                </div>
+              </section>
+
+              <section class="expansion-claim-boundary" aria-labelledby="expansionClaimTitle">
+                <h4 id="expansionClaimTitle">What V12.11 supports</h4>
+                <p id="expansionSupportedClaim"><b>Supported:</b> all 452 official DCCAs are assigned to an audited regional 3DPN pack; same-component walking ODs use exact directed A*.</p>
+                <p id="expansionUnsupportedClaim"><b>Not yet supported:</b> cross-region and cross-water operator paths, external contemporary child-route validation, observed home occupancy, school enrolment, or AccessTime schedules.</p>
+              </section>
+            </aside>
+          </div>
+        </section>
+
+        <section id="buildingsView" class="buildings-view" aria-label="3D building model view">
+          <canvas id="buildingCanvas" class="building-canvas" aria-label="Hong Kong building distribution map"></canvas>
+          <aside class="building-readout" aria-label="Building model details">
+            <div class="building-mode" role="group" aria-label="Building view mode">
+              <button id="buildingMacroButton" class="active" type="button">Hong Kong</button>
+              <button id="buildingModelButton" type="button">3D model</button>
+            </div>
+            <div class="building-select-block">
+              <label for="buildingSelect">Inspect building</label>
+              <select id="buildingSelect"></select>
+            </div>
+            <div class="building-metrics">
+              <div class="metric-row">
+                <span>Name</span>
+                <strong id="buildingName">No building</strong>
+              </div>
+              <div class="metric-row">
+                <span>Height</span>
+                <strong id="buildingHeight">0 m</strong>
+              </div>
+              <div class="metric-row">
+                <span>Levels</span>
+                <strong id="buildingLevels">n/a</strong>
+              </div>
+              <div class="metric-row">
+                <span>Footprint</span>
+                <strong id="buildingFootprint">0 m2</strong>
+              </div>
+              <div class="metric-row">
+                <span>Source</span>
+                <strong id="buildingModelSource">CSDI</strong>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section id="statsView" class="stats-view" aria-label="Simulation statistics">
+          <header class="stats-header">
+            <div>
+              <span class="stats-kicker">Live model summary</span>
+              <h2>Population, mobility and activity statistics</h2>
+              <p id="statsStatusLine">V12.8.1 · current scope, seed and simulation clock</p>
+            </div>
+          </header>
+          <div class="stats-grid" id="statsGrid"></div>
+          <section class="stats-chart-section" aria-labelledby="activityStackTitle">
+            <div class="stats-chart-heading">
+              <div>
+                <h3 id="activityStackTitle">Current activity composition</h3>
+                <span>Bar height = Census-weighted share in each Agent state</span>
+              </div>
+              <div class="state-colour-key" aria-label="Agent state colour legend">
+                <span><i style="--legend-color:#7a67a8"></i>Sleep</span>
+                <span><i style="--legend-color:#3d78a7"></i>Home</span>
+                <span><i style="--legend-color:#d99434"></i>Commute</span>
+                <span><i style="--legend-color:#247b72"></i>School</span>
+                <span><i style="--legend-color:#6f9d45"></i>Outdoor</span>
+                <span><i style="--legend-color:#c76571"></i>Activity</span>
+              </div>
+            </div>
+            <div class="activity-stack" id="activityStack"></div>
+          </section>
+          <section class="stats-chart-section" aria-labelledby="historyChartTitle">
+            <div class="stats-chart-heading">
+              <div>
+                <h3 id="historyChartTitle">24-hour model history</h3>
+                <span>Each column = one hour · height = dominant activity or heat signal</span>
+              </div>
+              <div class="history-colour-key" aria-label="History chart colour legend">
+                <span><i style="--history-color:#247b72"></i>School dominant</span>
+                <span><i style="--history-color:#6f9d45"></i>Outdoor dominant</span>
+                <span><i style="--history-color:#c76571"></i>High heat</span>
+              </div>
+            </div>
+            <div class="history-chart" id="historyChart"></div>
+          </section>
+        </section>
+
+        <section id="comparisonView" class="comparison-view" aria-label="Paired 2D and 3D ABM comparison">
+          <header class="comparison-header">
+            <div>
+              <span class="comparison-kicker">Matched spatial counterfactual</span>
+              <h2>2D vs 3D activity measurement</h2>
+              <p id="comparisonRunLabel">Loading paired full-day experiment</p>
+            </div>
+            <div class="comparison-source" role="group" aria-label="Comparison result source">
+              <button id="comparisonReferenceButton" class="active" type="button">V12.2 · 10-seed</button>
+              <button id="comparisonLiveButton" type="button">Live progress</button>
+            </div>
+          </header>
+
+          <div class="comparison-reading-key" aria-label="2D and 3D comparison legend">
+            <strong>Comparison key</strong>
+            <span><i class="legend-swatch two-d"></i>2D planar: XY route, no ascent</span>
+            <span><i class="legend-swatch three-d"></i>3D measured: XYZ route, ascent and vertical links</span>
+            <span><b>Δ</b> = 3D minus 2D for the same Agent and OD pair</span>
+          </div>
+
+          <div class="comparison-key-grid" aria-label="Key paired differences">
+            <article>
+              <span>3D walking time</span>
+              <strong id="comparisonWalkTimeDelta">0.0 min</strong>
+              <small>weighted mean in analysis window</small>
+            </article>
+            <article>
+              <span>Active-travel MVPA</span>
+              <strong id="comparisonMvpaDelta">0.0 min</strong>
+              <small>3D minus 2D, same window</small>
+            </article>
+            <article>
+              <span>Ascent represented</span>
+              <strong id="comparisonAscentDelta">0 m</strong>
+              <small>matched walking routes</small>
+            </article>
+            <article>
+              <span>&gt;=60 min MVPA</span>
+              <strong id="comparisonGuidelineDelta">0.0 pp</strong>
+              <small>cohort share difference</small>
+            </article>
+          </div>
+
+          <div class="comparison-chart-grid">
+            <section class="comparison-chart-panel" aria-labelledby="comparisonMetricsTitle">
+              <div class="comparison-panel-heading">
+                <div>
+                  <h3 id="comparisonMetricsTitle">Paired outcomes</h3>
+                  <span>Same Agents, destinations, routes and behaviour rules</span>
+                </div>
+                <div class="comparison-legend" aria-label="Chart legend">
+                  <span><i class="legend-swatch two-d"></i>2D planar</span>
+                  <span><i class="legend-swatch three-d"></i>3D measured</span>
+                </div>
+              </div>
+              <canvas id="comparisonMetricsCanvas" aria-label="Paired bar chart of 2D and 3D outcomes"></canvas>
+            </section>
+
+            <section class="comparison-chart-panel" aria-labelledby="comparisonDistributionTitle">
+              <div class="comparison-panel-heading">
+                <div>
+                  <h3 id="comparisonDistributionTitle">Walking-time correction</h3>
+                  <span>Distribution across matched walking Agents</span>
+                </div>
+              </div>
+              <canvas id="comparisonDistributionCanvas" aria-label="Quantile chart of 3D walking-time correction"></canvas>
+            </section>
+          </div>
+
+          <section class="comparison-domains" aria-labelledby="comparisonDomainTitle">
+            <div class="comparison-panel-heading">
+              <div>
+                <h3 id="comparisonDomainTitle">MVPA by activity domain</h3>
+                <span>Non-travel activity is held constant in the matched comparison</span>
+              </div>
+            </div>
+            <div id="comparisonDomainRows" class="comparison-domain-rows"></div>
+          </section>
+
+          <footer class="comparison-method">
+            <div><span>2D condition</span><strong>Official route flattened to XY; no ascent or vertical-connector impedance</strong></div>
+            <div><span>3D condition</span><strong>Official XYZ length, ascent, stairs, ramps and mechanical links</strong></div>
+            <div><span>Paired controls</span><strong>Agent, seed, OD pair, route topology, mode and activity rules fixed</strong></div>
+            <div><span>Interpretation</span><strong>Advantage means measurement fidelity; the outcome difference is not forced positive</strong></div>
+          </footer>
+        </section>
+
+        <section id="rulesView" class="rules-view" aria-label="Behaviour rules">
+          <header class="rules-header">
+            <div>
+              <span>Live model coefficients</span>
+              <h2>Agent interaction rules</h2>
+            </div>
+            <button id="resetRulesButton" type="button">Reset coefficients</button>
+          </header>
+
+          <div class="rule-reading-key" aria-label="Behaviour coefficient legend">
+            <strong>Coefficient key</strong>
+            <span><b>0</b> disables the response</span>
+            <span><b>Higher</b> means a stronger behavioural response</span>
+            <span><b>Reset</b> restores the frozen V12.6 calibrated defaults</span>
+            <span><b>Defaults</b> 0.70 · 0.85 · 1.00 · 1.00 · 0.80, in row order</span>
+          </div>
+
+          <div class="rules-list">
+            <section class="rule-row">
+              <div class="rule-name">
+                <strong>Crowding avoidance</strong>
+                <span>Neighbour repulsion strength</span>
+              </div>
+              <input id="crowdAvoidanceRange" type="range" min="0" max="1.5" step="0.05" value="0.7" />
+              <output id="crowdAvoidanceOutput" for="crowdAvoidanceRange">0.70</output>
+            </section>
+            <section class="rule-row">
+              <div class="rule-name">
+                <strong>Destination crowd penalty</strong>
+                <span>Less attractive occupied areas</span>
+              </div>
+              <input id="destinationCrowdRange" type="range" min="0" max="2" step="0.05" value="0.85" />
+              <output id="destinationCrowdOutput" for="destinationCrowdRange">0.85</output>
+            </section>
+            <section class="rule-row">
+              <div class="rule-name">
+                <strong>Contact sensitivity</strong>
+                <span>Exposure accumulated per neighbour</span>
+              </div>
+              <input id="contactSensitivityRange" type="range" min="0" max="2" step="0.05" value="1" />
+              <output id="contactSensitivityOutput" for="contactSensitivityRange">1.00</output>
+            </section>
+            <section class="rule-row">
+              <div class="rule-name">
+                <strong>Park attraction</strong>
+                <span>Green-space weight after school</span>
+              </div>
+              <input id="parkAttractionRange" type="range" min="0" max="2" step="0.05" value="1" />
+              <output id="parkAttractionOutput" for="parkAttractionRange">1.00</output>
+            </section>
+            <section class="rule-row">
+              <div class="rule-name">
+                <strong>Heat avoidance</strong>
+                <span>Outdoor choice response to heat</span>
+              </div>
+              <input id="heatAvoidanceRange" type="range" min="0" max="2" step="0.05" value="0.8" />
+              <output id="heatAvoidanceOutput" for="heatAvoidanceRange">0.80</output>
+            </section>
+          </div>
+
+          <div class="rule-method">
+            <div><span>Interaction neighbourhood</span><strong>3D spatial grid</strong></div>
+            <div><span>Personal crowd tolerance</span><strong>2-7 neighbours</strong></div>
+            <div><span>Destination inputs</span><strong>Real POI, capacity, access, heat, crowding</strong></div>
+            <div><span>School assignment</span><strong>Stage + network time + balanced campus load</strong></div>
+            <div><span>Parameter provenance</span><strong>Observed + derived + prior registry</strong></div>
+          </div>
+        </section>
+
+        <div id="tooltip" class="tooltip" hidden></div>
+      </section>
+
+      <aside class="metrics-panel" aria-label="Model metrics">
+        <button
+          id="collapseMetricsButton"
+          class="panel-collapse-button metrics-panel-collapse"
+          type="button"
+          title="Collapse metrics"
+          aria-label="Collapse metrics"
+          aria-expanded="true"
+        >
+          <span id="metricsCollapseIcon" aria-hidden="true">&rsaquo;</span>
+          <small>Metrics</small>
+        </button>
+        <section class="metric-section">
+          <h2>Activity Mix</h2>
+          <div id="activityList" class="activity-list"></div>
+        </section>
+
+        <section class="metric-section" id="mvpaSection">
+          <h2>Modelled Physical Activity</h2>
+          <div class="metric-row">
+            <span>Mean MVPA since reset</span>
+            <strong id="mvpaMeanMetric">0 min</strong>
+          </div>
+          <div class="metric-row">
+            <span>&gt;=60 min, model / SHS</span>
+            <strong id="mvpaGuidelineMetric">0% / 5.6%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Model cohort</span>
+            <strong id="mvpaEarlyYearsMetric">Age 6-16</strong>
+          </div>
+          <div class="metric-row">
+            <span>Active travel MVPA</span>
+            <strong id="mvpaTravelMetric">0 min</strong>
+          </div>
+          <div class="metric-row">
+            <span>School MVPA</span>
+            <strong id="mvpaSchoolMetric">0 min</strong>
+          </div>
+          <div class="metric-row">
+            <span>Outdoor / play MVPA</span>
+            <strong id="mvpaOutdoorMetric">0 min</strong>
+          </div>
+          <div class="metric-row">
+            <span>After-school MVPA</span>
+            <strong id="mvpaActivityMetric">0 min</strong>
+          </div>
+          <div class="metric-row">
+            <span>Vigorous activity</span>
+            <strong id="mvpaVigorousMetric">0 min</strong>
+          </div>
+          <div class="metric-row">
+            <span>Energy exposure</span>
+            <strong id="mvpaMetyMetric">0 METy-min</strong>
+          </div>
+          <div class="metric-row">
+            <span>Tracked simulation time</span>
+            <strong id="mvpaTrackedMetric">0 min</strong>
+          </div>
+        </section>
+
+        <section class="metric-section">
+          <h2>3D Area Calculation</h2>
+          <div class="metric-row">
+            <span>Area</span>
+            <strong id="focusName">Central and Western DCCA</strong>
+          </div>
+          <div class="metric-row">
+            <span>Boundary type</span>
+            <strong id="focusType">District</strong>
+          </div>
+          <div class="metric-row">
+            <span>Surface area</span>
+            <strong id="focusArea">0 km2</strong>
+          </div>
+          <div class="metric-row">
+            <span>Height basis</span>
+            <strong id="focusHeight">0 m</strong>
+          </div>
+          <div class="metric-row">
+            <span>Max building</span>
+            <strong id="focusMaxBuilding">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Volume basis</span>
+            <strong id="focusVolume">0 km3</strong>
+          </div>
+          <div class="metric-row">
+            <span>Children represented in volume</span>
+            <strong id="focusChildren">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>3D density</span>
+            <strong id="focusDensity">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Mean occupied floor</span>
+            <strong id="focusFloor">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Outdoor heat load</span>
+            <strong id="focusHeat">0.00</strong>
+          </div>
+          <div class="metric-row">
+            <span id="focusResidentChildrenLabel">Resident children proxy (age 3-17)</span>
+            <strong id="focusResidentChildren">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>EDB schools</span>
+            <strong id="focusSchools">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>LCSD parks</span>
+            <strong id="focusParks">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Activity venues</span>
+            <strong id="focusActivities">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>iGeoCom child POIs</span>
+            <strong id="focusChildPois">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Play / park POIs</span>
+            <strong id="focusPlayPois">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Sports POIs</span>
+            <strong id="focusSportPois">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Study / community POIs</span>
+            <strong id="focusStudyPois">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Transport nodes</span>
+            <strong id="focusTransportNodes">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Mobility access</span>
+            <strong id="focusMobilityAccess">0.00</strong>
+          </div>
+        </section>
+
+        <section class="metric-section" id="pilotRoutingSection">
+          <h2 id="pilotTitle">DCCA Network Pilot</h2>
+          <div class="metric-row">
+            <span>Official network</span>
+            <strong id="pilotNetworkMetric">0 km</strong>
+          </div>
+          <div class="metric-row">
+            <span>Graph size</span>
+            <strong id="pilotGraphMetric">0 nodes</strong>
+          </div>
+          <div class="metric-row">
+            <span>Routed agents</span>
+            <strong id="pilotRoutedMetric">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Mean route / direct</span>
+            <strong id="pilotCircuityMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Mean vertical gain</span>
+            <strong id="pilotVerticalMetric">0 m</strong>
+          </div>
+          <div class="metric-row">
+            <span>Straight fallback trips</span>
+            <strong id="pilotFallbackMetric">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Agent census weight</span>
+            <strong id="pilotAgentWeightMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Evidence-backed homes</span>
+            <strong id="pilotHomesMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Assigned campuses</span>
+            <strong id="pilotSchoolCampusesMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Mean school walk / TCS</span>
+            <strong id="pilotSchoolWalkMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>At most 10 min / TCS</span>
+            <strong id="pilotSchoolShortMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Over 15 min / TCS</span>
+            <strong id="pilotSchoolLongMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span id="pilotSchoolLocalLabel">Assigned inside DCCA</span>
+            <strong id="pilotSchoolLocalMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Departures 07:00-08:00</span>
+            <strong id="pilotSchoolPeakMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>On-time arrivals</span>
+            <strong id="pilotSchoolOnTimeMetric">pending</strong>
+          </div>
+        </section>
+
+        <section class="metric-section" id="regionalModelSection" hidden>
+          <h2>Regional Model Evidence</h2>
+          <div class="metric-row">
+            <span>DCCA coverage</span>
+            <strong id="regionalDccaMetric">80 / 80</strong>
+          </div>
+          <div class="metric-row">
+            <span>Weighted children (6–16)</span>
+            <strong id="regionalPopulationMetric">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Official buildings</span>
+            <strong id="regionalBuildingsMetric">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Residential anchors / schools / POIs</span>
+            <strong id="regionalPlacesMetric">0 / 0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Official 3DPN coverage</span>
+            <strong id="regionalNetworkMetric">0 routes</strong>
+          </div>
+          <div class="metric-row">
+            <span>Primary graph / gzip</span>
+            <strong id="regionalImpedanceMetric">1.00×</strong>
+          </div>
+          <div class="metric-row">
+            <span>Runtime routing</span>
+            <strong id="regionalRoutingMetric">Loading graph</strong>
+          </div>
+        </section>
+
+        <section class="metric-section" id="pilotCalibrationSection">
+          <h2>Evidence and Calibration Audit</h2>
+          <div class="metric-row">
+            <span>Parameter registry</span>
+            <strong id="parameterVersionMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>TCS cohort / proposal</span>
+            <strong id="tcsCohortMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Walk / mechanised mode</span>
+            <strong id="tcsModeMixMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Rail / school bus</span>
+            <strong id="tcsTransitMixMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Active share / mentor rule</span>
+            <strong id="tcsActiveShareMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Model / TCS journey mean</span>
+            <strong id="tcsJourneyMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>TCS spatial linkage</span>
+            <strong id="tcsSpatialMetric">Temporal only</strong>
+          </div>
+          <div class="metric-row">
+            <span>Census-weighted children</span>
+            <strong id="weightedPopulationMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Synthetic households</span>
+            <strong id="syntheticHouseholdsMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Age-stage max residual</span>
+            <strong id="stageResidualMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Household mix max residual</span>
+            <strong id="householdResidualMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Adult accompanied (prior)</span>
+            <strong id="adultAccompaniedMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>EDB capacity-backed</span>
+            <strong id="schoolCapacityMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Walk-limit fallbacks</span>
+            <strong id="walkLimitFallbackMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Home District / Census</span>
+            <strong id="homeDistrictSchoolMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Graph candidates in District</span>
+            <strong id="graphDistrictCoverageMetric">n/a</strong>
+          </div>
+          <div class="metric-row">
+            <span>Assigned real POI</span>
+            <strong id="poiAssignmentMetric">n/a</strong>
+          </div>
+        </section>
+
+        <section class="metric-section">
+          <h2>System</h2>
+          <div class="metric-row">
+            <span>School attendance</span>
+            <strong id="schoolMetric">0%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Commuting load</span>
+            <strong id="commuteMetric">0%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Outdoor share</span>
+            <strong id="outdoorMetric">0%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Real POI destinations</span>
+            <strong id="poiUsageMetric">0%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Contact index</span>
+            <strong id="contactMetric">0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Crowded children</span>
+            <strong id="crowdedMetric">0%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Contact exposure</span>
+            <strong id="exposureMetric">0.0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Avoided destinations</span>
+            <strong id="avoidanceMetric">0</strong>
+          </div>
+        </section>
+
+        <section class="metric-section">
+          <h2>Scenario Params</h2>
+          <div class="metric-row">
+            <span>School open</span>
+            <strong id="scenarioSchool">Yes</strong>
+          </div>
+          <div class="metric-row">
+            <span>Outdoor factor</span>
+            <strong id="scenarioOutdoor">1.00</strong>
+          </div>
+          <div class="metric-row">
+            <span>Activity factor</span>
+            <strong id="scenarioActivity">1.00</strong>
+          </div>
+          <div class="metric-row">
+            <span>Heat factor</span>
+            <strong id="scenarioHeat">0.45</strong>
+          </div>
+          <div class="metric-row">
+            <span>Mobility factor</span>
+            <strong id="scenarioMobility">1.00</strong>
+          </div>
+          <div class="metric-row">
+            <span>Contact factor</span>
+            <strong id="scenarioContact">1.00</strong>
+          </div>
+        </section>
+
+        <section class="metric-section">
+          <h2>Data Sources</h2>
+          <div class="metric-row">
+            <span>Boundaries</span>
+            <strong id="boundarySource">HAD + EAC</strong>
+          </div>
+          <div class="metric-row">
+            <span>3D buildings</span>
+            <strong id="buildingSource">CSDI buildings</strong>
+          </div>
+          <div class="metric-row">
+            <span>Behaviour</span>
+            <strong id="behaviourSource">Model params</strong>
+          </div>
+          <div class="metric-row">
+            <span>School mobility</span>
+            <strong id="tcsMobilitySource">TCS 2011 aggregate</strong>
+          </div>
+          <div class="metric-row">
+            <span>3D pedestrian network</span>
+            <strong id="pedestrianNetworkSource">Pilot extracts</strong>
+          </div>
+          <div class="metric-row">
+            <span>Physical activity</span>
+            <strong id="physicalActivitySource">Youth Compendium + priors</strong>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="data/hk_3dpn_metadata.js?v=20260813-v12-2-hki"></script>
+    <script src="data/hk_real_geodata.js?v=20260813-v12-2-hki"></script>
+    <script src="data/hk_island_model.js?v=20260816-v12-4-hki-od"></script>
+    <script src="data/hk_island_routing/manifest.js?v=20260816-v12-4-hki-od"></script>
+    <script src="data/v12_2_comparison_results.js?v=20260813-v12-2-hki"></script>
+    <script src="data/v12_6_route_calibration.js?v=20260820-v12-6-route-calibration"></script>
+    <script src="data/v12_6_school_access.js?v=20260820-v12-6-route-calibration"></script>
+    <script src="data/v12_6_poi_access.js?v=20260820-v12-6-route-calibration"></script>
+    <script src="data/v12_7_validation.js?v=20260824-v12-7-validation"></script>
+    <script src="data/v12_7_1_population_scale.js?v=20260826-v12-7-1-scale"></script>
+    <script src="data/v12_8_wts_routing/manifest.js?v=20260901-v12-9-kowloon"></script>
+    <script src="data/v12_8_routing_evidence.js?v=20260901-v12-9-kowloon"></script>
+    <script src="data/v12_9_kowloon_routing/manifest.js?v=20260901-v12-9-kowloon"></script>
+    <script src="data/v12_9_kowloon_routing_evidence.js?v=20260901-v12-9-kowloon"></script>
+    <script src="data/v12_9_3_kowloon_access.js?v=20260902-v12-9-3-network-choice"></script>
+    <script src="data/v12_10_nt_east_routing/manifest.js?v=20260905-v12-10-nt-east"></script>
+    <script src="data/v12_10_nt_east_routing_evidence.js?v=20260905-v12-10-nt-east"></script>
+    <script src="data/v12_10_nt_east_access.js?v=20260905-v12-10-nt-east"></script>
+    <script src="data/v12_10_nt_east_agent_evidence.js?v=20260905-v12-10-nt-east"></script>
+    <script src="data/v12_11_whole_hk_dispatcher.js?v=20260905-v12-11-whole-hk"></script>
+    <script src="data/v12_11_nt_west_routing/manifest.js?v=20260905-v12-11-whole-hk"></script>
+    <script src="data/v12_11_nt_west_routing_evidence.js?v=20260905-v12-11-whole-hk"></script>
+    <script src="data/v12_11_nt_west_access.js?v=20260905-v12-11-whole-hk"></script>
+    <script src="data/v12_11_nt_west_agent_evidence.js?v=20260905-v12-11-whole-hk"></script>
+    <script src="data/v12_11_islands_routing/manifest.js?v=20260905-v12-11-whole-hk"></script>
+    <script src="data/v12_11_islands_routing_evidence.js?v=20260905-v12-11-whole-hk"></script>
+    <script src="data/v12_11_islands_access.js?v=20260905-v12-11-whole-hk"></script>
+    <script src="data/v12_11_islands_agent_evidence.js?v=20260905-v12-11-whole-hk"></script>
+    <script src="data/v12_9_4_kowloon_calibration.js?v=20260904-v12-9-5-selection"></script>
+    <script src="data/v12_9_4_kowloon_multimodal.js?v=20260904-v12-9-5-selection"></script>
+    <script src="data/v12_9_4_kowloon_multimodal_time_calibration.js?v=20260904-v12-9-5-selection"></script>
+    <script src="data/v12_9_4_kowloon_experiment.js?v=20260904-v12-9-5-selection"></script>
+    <script src="data/v12_12_terrain_reliability.js?v=20260905-v12-12-terrain-qa"></script>
+    <script src="island-routing.js?v=20260905-v12-12-terrain-qa"></script>
+    <script src="multimodal-routing.js?v=20260904-v12-9-5-selection"></script>
+    <script src="data/v12_13_boundary_lookup.js?v=12.13"></script>
+    <script src="whole-hk-population.js?v=12.13"></script>
+    <script src="whole-hk.js?v=12.13"></script>
+    <script src="app.js?v=12.14.1"></script>
+    <script src="design/cross-pack-lab.js?v=12.14.1"></script>
+  </body>
+</html>
