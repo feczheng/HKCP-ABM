@@ -2,22 +2,24 @@
 
 (() => {
   const storageKey = "children-abm.basemap";
+  const isFileLaunch = location.protocol === "file:";
   const osmCredit = '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>';
   const sources = {
     osm: {maxZoom: 19, url: (z, x, y) => `https://tile.openstreetmap.org/${z}/${x}/${y}.png`, credit: osmCredit},
     topo: {maxZoom: 17, url: (z, x, y) => `https://tile.opentopomap.org/${z}/${x}/${y}.png`, credit: `${osmCredit}, SRTM · <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA</a>)`},
   };
   const styles = {
+    local: {label: "Local map", source: null, filter: "none", background: "#f3f2ed"},
     gray: {label: "OSM Gray", source: "osm", filter: "grayscale(1) brightness(1.06) contrast(0.88)", background: "#edf0f0"},
     standard: {label: "OSM Standard", source: "osm", filter: "none", background: "#e3ebe2"},
     dark: {label: "OSM Dark", source: "osm", filter: "grayscale(1) invert(1) brightness(0.72) contrast(0.85)", background: "#292d2e"},
     topo: {label: "OpenTopoMap", source: "topo", filter: "none", background: "#e7eddf"},
     none: {label: "No basemap", source: null, filter: "none", background: "#eff3f2"},
   };
-  let selected = "gray";
+  let selected = isFileLaunch ? "local" : "gray";
   try {
     const saved = localStorage.getItem(storageKey);
-    if (Object.hasOwn(styles, saved)) selected = saved;
+    if (Object.hasOwn(styles, saved) && (!isFileLaunch || !styles[saved].source)) selected = saved;
   } catch { /* Storage can be disabled without disabling the map. */ }
   const viewport = document.querySelector(".simulation-area");
   const panel = document.createElement("section");
@@ -26,12 +28,16 @@
   panel.innerHTML = '<label for="wbBasemap">BASEMAP</label><select id="wbBasemap" aria-label="Basemap"></select><div class="wb-basemap-status" role="status" aria-live="polite"></div><button class="wb-basemap-retry" type="button" hidden>Retry failed tiles</button>';
   viewport.append(panel);
   const select = panel.querySelector("select");
-  for (const [value, style] of Object.entries(styles)) select.add(new Option(style.label, value));
+  for (const [value, style] of Object.entries(styles)) {
+    const option = new Option(style.label + (isFileLaunch && style.source ? " (HTTP only)" : ""), value);
+    option.disabled = isFileLaunch && Boolean(style.source);
+    select.add(option);
+  }
   select.value = selected;
   const status = panel.querySelector(".wb-basemap-status");
   const retry = panel.querySelector("button");
   const attribution = document.querySelector(".wb-attribution");
-  attribution.innerHTML = '<div class="wb-basemap-credit"></div><div class="wb-data-credit">LandsD / CSDI · EDB · iGeoCom</div>';
+  attribution.innerHTML = '<div class="wb-basemap-credit"></div><div class="wb-data-credit">HKSAR Government / LandsD / CSDI / EDB / DATA.GOV.HK</div>';
   const credit = attribution.querySelector(".wb-basemap-credit");
   const cache = new Map();
   let visibleKeys = new Set();
@@ -40,7 +46,9 @@
   function updateStatus() {
     state = {loaded: 0, loading: 0, failed: 0};
     for (const key of visibleKeys) state[cache.get(key)?.state || "loading"]++;
-    const message = state.failed ? "Basemap partly unavailable; model layers remain active." : state.loading ? "Loading basemap…" : "";
+    const message = selected === "local"
+      ? `District boundaries, place names and loaded pedestrian routes.${isFileLaunch ? " Online basemaps require a local HTTP URL." : ""}`
+      : state.failed ? "Street tiles unavailable; choose Local map or retry. Model layers remain active." : state.loading ? "Loading basemap…" : "";
     if (message !== lastStatus) { status.textContent = message; lastStatus = message; }
     status.hidden = !message;
     retry.hidden = state.failed === 0;
@@ -48,13 +56,16 @@
   }
   function refreshStyle() {
     const style = styles[selected];
-    credit.innerHTML = style.source ? sources[style.source].credit : "";
+    credit.innerHTML = selected === "local" ? "Local map · HAD / EAC district boundaries · LandsD 3DPN" : style.source ? sources[style.source].credit : "";
     viewport.dataset.basemap = selected;
     osmCanvas.setAttribute("aria-label", `${style.label} child activity map`);
     visibleKeys = new Set(); updateStatus(); markOsmStaticDirty();
   }
   select.addEventListener("change", () => {
-    selected = select.value;
+    // A file page has no HTTP Referer. Never issue public tile requests from it,
+    // including a saved online preference or a programmatically selected option.
+    selected = Object.hasOwn(styles, select.value) && (!isFileLaunch || !styles[select.value].source) ? select.value : "local";
+    select.value = selected;
     try { localStorage.setItem(storageKey, selected); } catch { /* Session preference still works. */ }
     refreshStyle();
   });
@@ -84,15 +95,25 @@
       const image = new Image();
       record = {image, state: "loading"};
       cache.set(key, record);
-      image.crossOrigin = "anonymous";
       image.decoding = "async";
       const complete = (value) => {
         record.state = value;
         if (visibleKeys.has(key)) { markOsmStaticDirty(); updateStatus(); }
       };
-      image.onload = () => complete("loaded");
-      image.onerror = () => complete("failed");
-      image.src = sources[sourceId].url(z, wrappedX, y);
+      let objectUrl;
+      const dispose = () => { if (objectUrl) URL.revokeObjectURL(objectUrl); };
+      image.onload = () => { dispose(); complete("loaded"); };
+      image.onerror = () => { dispose(); complete("failed"); };
+      // Check the HTTP result before decoding; an error response can contain an
+      // image and must never be painted as a map tile. Normal browser caching
+      // and the page's real Referer are preserved; no prefetch or header spoofing.
+      fetch(sources[sourceId].url(z, wrappedX, y), {credentials: "omit"})
+        .then((response) => {
+          if (!response.ok) throw new Error(`Tile unavailable (${response.status})`);
+          return response.blob();
+        })
+        .then((blob) => { objectUrl = URL.createObjectURL(blob); image.src = objectUrl; })
+        .catch(() => complete("failed"));
     }
     // A bounded display cache; evicted images still use the browser's normal HTTP cache.
     cache.delete(key); cache.set(key, record);
@@ -107,7 +128,8 @@
     ctx.filter = "none";
     ctx.fillStyle = style.background;
     ctx.fillRect(0, 0, osmCanvas.width, osmCanvas.height);
-    if (style.source) {
+    if (selected === "local") window.ChildrenABMLocalMap.draw(ctx, ratio);
+    if (style.source && !isFileLaunch) {
       const zoom = Math.min(Math.floor(osmMap.zoom), sources[style.source].maxZoom);
       const scale = 2 ** (osmMap.zoom - zoom);
       const center = lonLatToWorldPixel(osmMap.centerLon, osmMap.centerLat, zoom);
@@ -130,7 +152,7 @@
     updateStatus();
   };
   window.WorkbenchBasemaps = {
-    diagnostics: () => ({selected, source: styles[selected].source, filter: styles[selected].filter, ...state, cacheSize: cache.size, visibleKeys: [...visibleKeys]}),
+    diagnostics: () => ({selected, label: styles[selected].label, fileLaunch: isFileLaunch, source: styles[selected].source, filter: styles[selected].filter, ...state, cacheSize: cache.size, visibleKeys: [...visibleKeys]}),
   };
   refreshStyle();
 })();

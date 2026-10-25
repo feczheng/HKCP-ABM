@@ -1,0 +1,240 @@
+{
+  "edition": "V12.19.4 Public Data UI1.1",
+  "files": [
+    {
+      "path": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4583,
+      "sha256": "57e3fc45b03c46210fcfab0591810dd93aa870c9a72d39c1c6cc9f7e5fb968df"
+    },
+    {
+      "path": "activity-accounting.js",
+      "bytes": 3452,
+      "sha256": "b6015d6b3bb4fb495e05e532a4faa8e327317fa0c3d95ff6c3e740227b651230"
+    },
+    {
+      "path": "agent-filter-metrics.js",
+      "bytes": 3285,
+      "sha256": "b7ed9c86ae485c0c028face9e85759846697e78d6b342c17acbfa8f28d857e26"
+    },
+    {
+      "path": "app.js",
+      "bytes": 573541,
+      "sha256": "3ae74df18a43b8d8511a4eb30eb4a7faab9fcb18e36830c20ecba05fb45cd0c1"
+    },
+    {
+      "path": "data-sources.html",
+      "bytes": 5724,
+      "sha256": "3d1079d9e3cb2dada262074c93de32d771a23f4c818787e96a51469c887c906b"
+    },
+    {
+      "path": "data/hk_3dpn_metadata.js",
+      "bytes": 647,
+      "sha256": "000d72980cabd930f603f68924b39824aecdcd2535d437ce977d456202353880"
+    },
+    {
+      "path": "data/hk_island_model.js",
+      "bytes": 578506,
+      "sha256": "4bd36dd60edbb2318b1654793fb5a2e29de0af8628eb569771af409310b57122"
+    },
+    {
+      "path": "data/hk_island_routing/complete.json.gz",
+      "bytes": 6574054,
+      "sha256": "f7863827cee046a42565fcac57b14be7b9ab09452cf8596d0cbf57feaba08310"
+    },
+    {
+      "path": "data/hk_island_routing/manifest.js",
+      "bytes": 728346,
+      "sha256": "a0d00f997f03b2edfcb9512cca9328b7309f91c7091ef16df9ba380ec252d80d"
+    },
+    {
+      "path": "data/hk_real_geodata.js",
+      "bytes": 5027106,
+      "sha256": "e15c20c655c73f97e46e9724ca3cfeb32d3e597e914bd0688871870bb3b4a7c3"
+    },
+    {
+      "path": "data/v12_10_nt_east_access.js",
+      "bytes": 341988,
+      "sha256": "62e11ea551fa2b6517da6012471ebb6c4fc43e2398f8391acbe7fc2c22299447"
+    },
+    {
+      "path": "data/v12_10_nt_east_routing/complete.json.gz",
+      "bytes": 14112639,
+      "sha256": "05c8c5160b2b3f3f8f9bb22fbb10eba0c7602d8b81c8231a58a3ec1d35faed00"
+    },
+    {
+      "path": "data/v12_10_nt_east_routing/manifest.js",
+      "bytes": 982442,
+      "sha256": "6ea70e6917cc55aef9cdadf8d5960f829465fe526ede245af1703c426c722995"
+    },
+    {
+      "path": "data/v12_11_islands_access.js",
+      "bytes": 25807,
+      "sha256": "3becc2299f161cbd111536a2c1c4e2ca799a78f072b80a61a21e00172fd07342"
+    },
+    {
+      "path": "data/v12_11_islands_routing/complete.json.gz",
+      "bytes": 3254821,
+      "sha256": "dd807531c2f87258000808fea239d294de8cf396aef165e26f471bb9a797da8c"
+    },
+    {
+      "path": "data/v12_11_islands_routing/manifest.js",
+      "bytes": 171285,
+      "sha256": "2ac52fd1bbaf66aaf5636e85395e0c9691697e9adcb3d38989959d0da9969144"
+    },
+    {
+      "path": "data/v12_11_nt_west_access.js",
+      "bytes": 371969,
+      "sha256": "931da2e42c6a13d8db4002c829a5cff18fb68fc344c882e052eaad5ac23ace82"
+    },
+    {
+      "path": "data/v12_11_nt_west_routing/complete.json.gz",
+      "bytes": 10832493,
+      "sha256": "cbc7cecad8435ecda2904506f0676a9ded804a8ef5ff24d48b215a571d23b60d"
+    },
+    {
+      "path": "data/v12_11_nt_west_routing/manifest.js",
+      "bytes": 989495,
+      "sha256": "c05659393126098d9289af5059df4d1601b549e5e5696710d23ad23a8b4a1dba"
+    },
+    {
+      "path": "data/v12_11_whole_hk_dispatcher.js",
+      "bytes": 14296,
+      "sha256": "18aba050ffa9a6d5592dc0b707fe8569e6714ce754f7d21104722c38d2586adc"
+    },
+    {
+      "path": "data/v12_13_boundary_lookup.js",
+      "bytes": 3485893,
+      "sha256": "6b16a06bba30faf1ea60e98a462d5d104a87b57644078439491d3892a98b80b6"
+    },
+    {
+      "path": "data/v12_6_school_access.js",
+      "bytes": 1635016,
+      "sha256": "d6895a46a81c650d75bfeade616e0f0813e0f35e2c778b92d838c2cbd9114dc5"
+    },
+    {
+      "path": "data/v12_9_3_kowloon_access.js",
+      "bytes": 425561,
+      "sha256": "73729a39f2cd2368387579179577d7626c77e05229fcf33e81616378e235d2ff"
+    },
+    {
+      "path": "data/v12_9_kowloon_routing/complete.json.gz",
+      "bytes": 6342378,
+      "sha256": "0792b6b59e54759d687935880c9a935af02c485003f942204f94f3583b3d31b8"
+    },
+    {
+      "path": "data/v12_9_kowloon_routing/manifest.js",
+      "bytes": 706708,
+      "sha256": "06bdb887c80f95f959ad8cccf22ee556e9498e370c9ec436bb5e94c9f7e10ade"
+    },
+    {
+      "path": "design/agent-filters.css",
+      "bytes": 2766,
+      "sha256": "f73b290fd839b1f4cae4ff9252b492ba6557c71c01d297a4cb55fe5d5b5fcfd5"
+    },
+    {
+      "path": "design/agent-filters.js",
+      "bytes": 14592,
+      "sha256": "37f8e69ed71bbe9b311f968bb8ecb31c9583493936b254203c7201c58761c99c"
+    },
+    {
+      "path": "design/basemaps.js",
+      "bytes": 8955,
+      "sha256": "96737a298d8983426a1e88f17cf13d739e3b11bf2a73e73353f599878a9fe103"
+    },
+    {
+      "path": "design/live-agent-panel.css",
+      "bytes": 3796,
+      "sha256": "c14abfd5819a5870376da88ff24daeae19578816427d748d34a3e534df742af0"
+    },
+    {
+      "path": "design/live-agent-panel.js",
+      "bytes": 7001,
+      "sha256": "a8a1f65a238c0cec8358abf0424d42b15794bd13bb91789aa6e9d88624efd9e0"
+    },
+    {
+      "path": "design/local-basemap.js",
+      "bytes": 4495,
+      "sha256": "c3789cdfa5f56088b5784a2fdfeafaffa106fcdfae8cb26bb6741e9cf696ee52"
+    },
+    {
+      "path": "design/vendor/LICENSE",
+      "bytes": 1081,
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+    },
+    {
+      "path": "design/vendor/LUCIDE_LICENSE",
+      "bytes": 3208,
+      "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+    },
+    {
+      "path": "design/vendor/lucide.min.js",
+      "bytes": 397450,
+      "sha256": "ab85225ecc1daa2033607856f03dd2dabcbc08e2d260a5b97e17c690aa929766"
+    },
+    {
+      "path": "design/workbench-scene.bundle.js",
+      "bytes": 564519,
+      "sha256": "de7bc9ff8e0060d309f379a80b57456195cb7def69c2705cc1f036a5b40fa90d"
+    },
+    {
+      "path": "design/workbench.css",
+      "bytes": 28363,
+      "sha256": "eab258bdf45cdd7c9975cb955ec374ca080aae5951a94077d2ca40bade179fdf"
+    },
+    {
+      "path": "design/workbench.js",
+      "bytes": 28850,
+      "sha256": "07e1cbd39c0de7c7f248ef701b5dba45616cbfb703defb5dbec0d1ce53507fe6"
+    },
+    {
+      "path": "index.html",
+      "bytes": 64815,
+      "sha256": "736129410a6a0f9c9679bca614b6d40bfa4da62ada38071b1c00ee75b686df79"
+    },
+    {
+      "path": "island-routing.js",
+      "bytes": 34204,
+      "sha256": "4f095d97b1834f09186207b015ecc380b38b7dd97fe1ce23d836f609da984e50"
+    },
+    {
+      "path": "live-indicator-metrics.js",
+      "bytes": 4207,
+      "sha256": "8ea3412751cff26e59058f82dc00dea6d4f4a4a897e4c6aa1be8cc1895a8ad18"
+    },
+    {
+      "path": "public-edition.css",
+      "bytes": 2791,
+      "sha256": "1c810cd22d7708ccff5d1b564480212a1a138b57257ac6d603e2f7f20ec99f18"
+    },
+    {
+      "path": "public-edition.js",
+      "bytes": 1643,
+      "sha256": "e466a6d75dd194e6f4fe21ed72411836c35a90ef55b22ee732ba055058513a55"
+    },
+    {
+      "path": "public-loading.js",
+      "bytes": 6943,
+      "sha256": "124ac7e2863e99430a75a34a73fc0c6c22d9dd65f383232eccf54b2df880e25d"
+    },
+    {
+      "path": "styles.css",
+      "bytes": 84533,
+      "sha256": "78977a1f8108a47e7972070fe1948a50e99911ec8245afd2934c1d9668e7a2ea"
+    },
+    {
+      "path": "whole-hk-population.js",
+      "bytes": 14004,
+      "sha256": "181dcdc9908acb6ffc79b6df027122275301d4327197fe506e5a5785a903d3da"
+    },
+    {
+      "path": "whole-hk.js",
+      "bytes": 19108,
+      "sha256": "eb281da443b8eacd2c5d47ac2693209cd37288aefcaab63acf633c92627ad591"
+    }
+  ]
+}

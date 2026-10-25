@@ -188,6 +188,19 @@
 .workbench .simulation-area .agent-route-audit { top: 140px; max-height: calc(100% - 270px); }
 .workbench .simulation-area .agent-observer-legend { border-radius: 4px; max-height: 106px; overflow: auto; }
 .workbench .buildings-view { background: #e5eeec; }
+.wb-building-key { display: none; }
+.wb-building-details { min-width: 0; }
+.wb-building-details > summary { display: none; }
+.wb-building-details .building-metrics { margin-top: 14px; }
+@media (max-width: 620px) {
+  .workbench .building-readout { left: 12px; bottom: 12px; width: calc(100% - 24px); padding: 12px; max-height: 65%; overflow-y: auto; }
+  .wb-building-details > summary { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 12px; font-weight: 700; }
+  .wb-building-details > summary svg { width: 16px; height: 16px; }
+  .wb-building-details[open] > summary { margin-bottom: 12px; }
+  .wb-building-details:not([open]) > :not(summary) { display: none; }
+  .wb-building-key { display: flex; align-items: center; gap: 8px; position: absolute; top: 12px; left: 12px; z-index: 4; padding: 8px 12px; background: white; border: 1px solid var(--line); border-radius: 4px; }
+  .wb-building-key svg { width: 16px; height: 16px; }
+}
 .workbench .building-mode { top: 16px; }
 
 .workbench #agentsView.active { display: flex; flex-direction: column; overflow: auto; }

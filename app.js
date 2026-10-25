@@ -1,8 +1,8 @@
 "use strict";
 
 const APP_RELEASE = Object.freeze({
-  version: "V12.14.1",
-  label: "Whole-Hong-Kong simulation and cross-region 3D routing audit",
+  version: "V12.19.4",
+  label: "Public data edition: real geography; synthetic walking school journeys",
 });
 
 const STATE_META = {
@@ -138,79 +138,7 @@ const v12_11IslandsRoutingGraph = v12_11IslandsRoutingManifest && window.HKIslan
   ? new window.HKIslandRouting.RegionalRoutingGraph(v12_11IslandsRoutingManifest, { pathCacheMax: 700 })
   : null;
 const ISLANDS_SCOPE_ID = v12_11IslandsRoutingManifest?.scope?.id || "outlying-islands";
-const expansionRoutingPacks = Object.freeze({
-  ntWest: Object.freeze({
-    key: "ntWest",
-    manifest: v12_11NtWestRoutingManifest,
-    evidence: v12_11NtWestRoutingEvidence,
-    graph: v12_11NtWestRoutingGraph,
-    statusLabel: "NT West graph",
-    mapTitle: "New Territories West routing region",
-    ledgerTitle: "120-DCCA graph ledger",
-    claimTitle: "What V12.11 supports",
-    pendingStatus: v12_11NtWestAgentEvidence?.status === "PASS"
-      ? "NT West Agents · internal PASS; external pending"
-      : "NT West Agent runtime · internal diagnostic",
-    supportedClaim: "All 120 DCCAs in Tsuen Wan, Kwai Tsing, Tuen Mun and Yuen Long retain official 3DPN topology. Ma Wan remains a separate pedestrian component, and same-component walking ODs use exact directed 3D A*.",
-    unsupportedClaim: "No pedestrian link is invented across water or between disconnected components. Cross-region and cross-component journeys require a separately represented mechanised leg; child route choice remains internally validated only.",
-  }),
-  islands: Object.freeze({
-    key: "islands",
-    manifest: v12_11IslandsRoutingManifest,
-    evidence: v12_11IslandsRoutingEvidence,
-    graph: v12_11IslandsRoutingGraph,
-    statusLabel: "Islands graph",
-    mapTitle: "Outlying Islands component atlas",
-    ledgerTitle: "10-DCCA component ledger",
-    claimTitle: "What V12.11 supports",
-    pendingStatus: v12_11IslandsAgentEvidence?.status === "PASS"
-      ? "Islands Agents · internal PASS; external pending"
-      : "Islands Agent runtime · internal diagnostic",
-    supportedClaim: "All 10 Islands District DCCAs retain their official local 3DPN components. Lantau, Lamma, Cheung Chau, Peng Chau and other disconnected land masses remain topologically separate; exact walking A* is allowed only within a shared component.",
-    unsupportedClaim: "Ferry and other cross-water travel are not walking edges and are not yet assigned operator schedules. The model does not claim observed child addresses, enrolments or routes.",
-  }),
-  ntEast: Object.freeze({
-    key: "ntEast",
-    manifest: v12_10NtEastRoutingManifest,
-    evidence: v12_10NtEastRoutingEvidence,
-    graph: v12_10NtEastRoutingGraph,
-    statusLabel: "NT East graph",
-    mapTitle: "New Territories East routing region",
-    ledgerTitle: "107-DCCA graph ledger",
-    claimTitle: "What V12.10 supports",
-    pendingStatus: v12_10NtEastAgentEvidence?.status === "PASS"
-      ? "NT East Agents · internal PASS; external pending"
-      : "NT East Agent runtime · internal diagnostic",
-    supportedClaim: "All 107 DCCAs in Sha Tin, Tai Po, North and Sai Kung share one compressed official 3D pedestrian graph. Census-weighted synthetic Agents use attached homes, schools and child POIs; every realised walking OD is recomputed with exact directed 3D A*.",
-    unsupportedClaim: "This is not external child-route validation or a contemporary travel estimate. Mechanised NT East journeys retain territory-wide TCS 2011 temporal profiles without claiming operator-specific spatial paths; the eight R04 home candidates are explicitly labelled Census-backed fallbacks.",
-  }),
-  kowloon: Object.freeze({
-    key: "kowloon",
-    manifest: v12_9KowloonRoutingManifest,
-    evidence: v12_9KowloonRoutingEvidence,
-    graph: v12_9KowloonRoutingGraph,
-    statusLabel: "Kowloon graph",
-    mapTitle: "Continuous Kowloon routing region",
-    ledgerTitle: "135-DCCA graph ledger",
-    claimTitle: "What V12.9.5 supports",
-    pendingStatus: "Kowloon Agent runtime · internal diagnostic",
-    supportedClaim: "All 135 DCCAs share one official 3D pedestrian graph. A privacy-safe TCS 2011 Kowloon estimation split now sets mode and schedule profiles, while a household holdout scores them. Mechanised journeys combine exact 3DPN access/egress with OSM road, rail or ferry topology.",
-    unsupportedClaim: "This is internal household holdout validation, not external child-route validation or a 2026 travel estimate. Bus and school-bus paths are road-network proxies; rail transfers are explicit connectors; ferry frequency and line-haul elevation are not modelled.",
-  }),
-  wts: Object.freeze({
-    key: "wts",
-    manifest: v12_8RoutingManifest,
-    evidence: v12_8RoutingEvidence,
-    graph: v12_8RoutingGraph,
-    statusLabel: "WTS proof graph",
-    mapTitle: "Wong Tai Sin / Diamond Hill stress region",
-    ledgerTitle: "25-DCCA graph ledger",
-    claimTitle: "What V12.8 proves",
-    pendingStatus: "Kowloon continuity · superseded by V12.9",
-    supportedClaim: "The reusable pipeline retains official topology and calculates exact directed 3D routes across source tiles in the original 25-DCCA stress region.",
-    unsupportedClaim: "This retained comparison alone does not establish continuous Kowloon coverage or a calibrated regional Agent population.",
-  }),
-});
+const expansionRoutingPacks = Object.freeze({});
 const islandSchoolAccessByHomeNode = new Map(
   (islandSchoolAccessBundle?.byHomeNode || []).map(([homeNodeId, primaryCampuses, secondaryCampuses]) => [
     homeNodeId,
@@ -423,7 +351,7 @@ const PHYSICAL_ACTIVITY_PARAMETERS = Object.freeze(
 const TCS2011_CHILD_MOBILITY = Object.freeze(
   MODEL_PARAMETERS.tcs2011ChildMobility || {
     schemaVersion: "fallback",
-    cohort: { modelAgeMin: 6, modelAgeMax: 16, eligibleRespondents: 0, mentorProposalRespondents: 3938 },
+    cohort: { modelAgeMin: 6, modelAgeMax: 16, eligibleRespondents: 0, mentorProposalRespondents: 0 },
     modelPolicy: { mvpaAccounting: "conservative-active-segments" },
     groups: {
       primary_1_3: {
@@ -2458,6 +2386,7 @@ function findPilotPath(startNodeId, destinationNodeId, profile = "scenario", rou
   });
   const result = {
     nodeIds,
+    edgeIds,
     pathMeters,
     horizontalMeters,
     generalizedMeters: scores[destinationNodeId],
@@ -2611,6 +2540,9 @@ function snapshotAgentRoute(agent) {
   const route = agent.lastRoute || {};
   const quality = assessRouteQuality(agent, route, agent.routePurpose);
   return {
+    ...(route.nodeNamespace ? { nodeNamespace: route.nodeNamespace, controlledPilot: true,
+      activeWalkingMinutes: route.activeWalkingMinutes, unverifiedAccessMinutes: route.unverifiedAccessMinutes,
+      mechanicalMinutes: route.mechanicalMinutes } : {}),
     mode: route.mode || "straight",
     transportMode: route.transportMode || agent.travelMode || "walk",
     spatialStatus: route.spatialStatus || "not-recorded",
@@ -2620,10 +2552,14 @@ function snapshotAgentRoute(agent) {
     directMeters: Number(route.directMeters || route.routeMeters || 0),
     circuity: Number(route.circuity || 1),
     routeMeters: Number(route.routeMeters || route.directMeters || 0),
-    planarRouteMeters: Number(route.planarRouteMeters || route.routeMeters || route.directMeters || 0),
+    planarRouteMeters: Number(route.planarRouteMeters ?? route.routeMeters ?? route.directMeters ?? 0),
     generalizedMeters: Number(route.generalizedMeters || route.routeMeters || route.directMeters || 0),
     estimatedMinutes: Number(route.estimatedMinutes || 0),
-    planarEstimatedMinutes: Number(route.planarEstimatedMinutes || route.estimatedMinutes || 0),
+    planarEstimatedMinutes: Number(route.planarEstimatedMinutes ?? route.estimatedMinutes ?? 0),
+    accountingVersion: route.accountingVersion || null,
+    activeWalkingMinutes: route.activeWalkingMinutes ?? null,
+    unverifiedAccessMinutes: route.unverifiedAccessMinutes ?? null,
+    mechanicalMinutes: route.mechanicalMinutes ?? null,
     verticalGainMeters: Number(route.verticalGainMeters || 0),
     maxAbsoluteGrade: Number(route.maxAbsoluteGrade || 0),
     maxGradeFeatureType: Number(route.maxGradeFeatureType || 0),
@@ -2677,17 +2613,19 @@ function resetAgentObserverHistory(agent, state = agent.state || "home") {
   agent.stateHistory = [{ time: world.time, state, destination: agent.target?.label || null }];
 }
 
-function recordAgentStateEvent(agent, state, destination = null) {
+function recordAgentStateEvent(agent, state, destination = null, time = world.time, label = null) {
   const history = agent.stateHistory || (agent.stateHistory = []);
   const previous = history.at(-1);
   if (previous?.state === state) return;
-  history.push({ time: world.time, state, destination });
+  history.push({ time, state, destination, ...(label ? { label } : {}) });
   if (history.length > AGENT_OBSERVER_MAX_STATE_EVENTS) history.shift();
 }
 
 function startAgentTrip(agent, purpose, expectedMinutes = null) {
   if (!purpose || physicalDistanceMeters(agent.pos, agent.target) < 3) return;
   if (purpose === "school" && agent.state !== "commute") return;
+  prepareRouteAccounting(agent);
+  if (agent.route && !agent.routePurpose) agent.routePurpose = purpose;
   const historyId = ++world.tripSequence;
   const routeSnapshot = snapshotAgentRoute(agent);
   const tripHistory = agent.tripHistory || (agent.tripHistory = []);
@@ -2777,8 +2715,14 @@ function kowloonMultimodalWalkLeg(startPoint, startNodeId, destinationPoint, des
       path.verticalGainMeters +
       Math.max(0, ((startNetworkPoint.z || 0) - (startPoint.z || 0)) * verticalUnitMeters) +
       Math.max(0, ((destinationPoint.z || 0) - (destinationNetworkPoint.z || 0)) * verticalUnitMeters),
-    points: path.nodeIds.map((nodeId) => ({
-      ...kowloonNodePoint(nodeId),
+    points: networkAccountingPoints(path, kowloonNodePoint, (id) => ({
+      meters: v12_9KowloonRoutingGraph.edgeLengthMeters[id],
+      horizontalMeters: v12_9KowloonRoutingGraph.edgeHorizontalMeters[id],
+      generalizedMeters: v12_9KowloonRoutingGraph.edgeCost(id, islandRoutingOptions()),
+      planarGeneralizedMeters: v12_9KowloonRoutingGraph.planarEdgeCost(id, islandRoutingOptions()),
+      kind: HKActivityAccounting.isMechanical(v12_9KowloonRoutingGraph.edgeFeatureType[id]) ? "mechanical" : "walk",
+    })).map((point) => ({
+      ...point,
       travelKind: "active-access",
     })),
     startConnectorMeters,
@@ -2893,7 +2837,7 @@ function assignKowloonMultimodalRoute(agent, target, purpose) {
   const directMeters = Math.max(1, physicalDistanceMeters(agent.pos, target));
   const activeTravelMinutes = accessMinutes + egressMinutes;
   const routePoints = [];
-  access.points.slice(1).forEach((point) => pushDistinctRoutePoint(routePoints, point));
+  access.points.forEach((point) => pushDistinctRoutePoint(routePoints, point));
   pushDistinctRoutePoint(routePoints, { ...boardingPoint, travelKind: "active-access" });
   const linePointCount = Math.max(1, journey.points.length - 1);
   journey.points.forEach((point, index) => {
@@ -3330,7 +3274,11 @@ function assignRegionalNetworkRoute(agent, target, purpose) {
     planarGeneralizedMeters / Math.max(35, agent.walkingSpeedMpm || 70) / scenarioMobility;
   const pathShare = path.pathMeters / Math.max(1, routeMeters);
   const mechanicalShare = path.mechanicalShare * pathShare;
-  const points = path.nodeIds.map((nodeId) => pointForNode(nodeId));
+  const points = networkAccountingPoints(path, pointForNode, (id) => ({
+    meters: graph.edgeLengthMeters[id], horizontalMeters: graph.edgeHorizontalMeters[id],
+    generalizedMeters: graph.edgeCost(id, routingOptions), planarGeneralizedMeters: graph.planarEdgeCost(id, routingOptions),
+    kind: HKActivityAccounting.isMechanical(graph.edgeFeatureType[id]) ? "mechanical" : "walk",
+  }));
   points.push({
     x: target.x,
     y: target.y,
@@ -3530,7 +3478,12 @@ function assignAgentRouteCore(agent, target, purpose = null) {
     planarGeneralizedMeters /
     Math.max(35, agent.walkingSpeedMpm || 70) /
     Math.max(0.1, SCENARIOS[world.scenario].mobility);
-  const points = path.nodeIds.map((nodeId) => pilotNodePoint(nodeId));
+  const points = networkAccountingPoints(path, pilotNodePoint, (id) => ({
+    meters: pilotNetworkEdges[id][2], horizontalMeters: pilotEdgeHorizontalMeters(pilotNetworkEdges[id]),
+    generalizedMeters: pilotEdgeCost(pilotNetworkEdges[id], "scenario", routingContext),
+    planarGeneralizedMeters: pilotPlanarEdgeCost(pilotNetworkEdges[id], "scenario", routingContext),
+    kind: HKActivityAccounting.isMechanical(pilotNetworkEdges[id][3]) ? "mechanical" : "walk",
+  }));
   points.push({ x: target.x, y: target.y, z: target.z, nodeId: destinationNodeId, terminal: true });
   agent.route = points;
   agent.routeIndex = 0;
@@ -6031,12 +5984,15 @@ function resetSimulation() {
 }
 
 function resetWorldSimulationState() {
+  window.CrossPackLive?.reset();
   world.agents = [];
   world.households = [];
   world.history = [];
   world.lastHistoryHour = -1;
   world.elapsedMinutes = 0;
   world.comparisonWindowMinutes = 0;
+  world.dayIndex = 0;
+  world.lastCompletedDay = null;
   world.avoidedDestinations = 0;
   world.routedTrips = 0;
   world.routeFallbacks = 0;
@@ -6091,9 +6047,9 @@ function createSimulationCohort(population, suppliedProfiles = null) {
       (isNtWestScope() || isOutlyingIslandsScope()) &&
       !v12_11DccaWalkAccessAvailable(homeZone.id, age);
     const travelMode = forcedNetworkTransfer ? "other" : sampledTravelMode;
-    const travelModeLabel = forcedNetworkTransfer ? "Required mechanised transfer" : sampledTravelModeLabel;
-    const activeTravelShare = forcedNetworkTransfer ? 0.15 : sampledActiveTravelShare;
-    const mentorActiveTravelShare = forcedNetworkTransfer ? 0.15 : sampledMentorActiveTravelShare;
+    const travelModeLabel = forcedNetworkTransfer ? "No connected school walk (held at home)" : sampledTravelModeLabel;
+    const activeTravelShare = forcedNetworkTransfer ? 0 : sampledActiveTravelShare;
+    const mentorActiveTravelShare = forcedNetworkTransfer ? 0 : sampledMentorActiveTravelShare;
     const regionalHomePool = regionalMode
       ? routedRegionalHomeAnchors(homeZone.id, age, travelMode)
       : { anchors: [], tier: "not-regional" };
@@ -6360,47 +6316,18 @@ function finishSimulationReset() {
 }
 
 function getTask(agent, minuteAbsolute) {
-  const scenario = SCENARIOS[world.scenario];
-  const scheduleOffset = agent.scope?.startsWith("pilot-") ? 0 : agent.scheduleNoise;
-  const minute = ((minuteAbsolute + scheduleOffset) % 1440 + 1440) % 1440;
-  const schoolStart = agent.schoolStartMinute ?? 8 * 60 + agent.schoolShift;
-  const schoolDeparture = agent.schoolDepartureMinute ?? schoolStart - 48;
-  const schoolEnd = 15 * 60 + 25 + Math.round(agent.age > 11 ? 24 : -12);
-
-  if (minute < 6 * 60 + 15) return { state: "sleep", dest: "home" };
-  if (!scenario.schoolOpen) {
-    if (minute < 8 * 60) return { state: "home", dest: "home" };
-    if (minute < 12 * 60) return { state: "activity", dest: "home" };
-    if (minute < 18 * 60) return { state: agent.outdoorPreference * scenario.outdoorFactor > 0.7 ? "outdoor" : "home", dest: "home" };
-    if (minute < 21 * 60 + 30) return { state: "home", dest: "home" };
-    return { state: "sleep", dest: "home" };
-  }
-
-  if (minute < schoolDeparture) return { state: "home", dest: "home" };
-  if (minute < schoolStart) return { state: "commute", dest: "school" };
-  if (minute < schoolEnd) return { state: "school", dest: "school" };
-  if (minute < schoolEnd + 38) return { state: "commute", dest: "postschool" };
-  if (minute < 18 * 60 + 35) {
-    const heatResponse = clamp(
-      scenario.heat * world.rules.heatAvoidance * (1 - agent.activityZone.parks * 0.55) * 0.58,
-      0,
-      0.92,
-    );
-    const playScore =
-      agent.outdoorPreference *
-      scenario.outdoorFactor *
-      (agent.activityZone.parks * world.rules.parkAttraction + 0.35) *
-      (1 - heatResponse);
-    const activityScore =
-      agent.activityPreference *
-      scenario.activityFactor *
-      (0.58 + (agent.activityZone.activityService || 0.4) * 0.24 + agent.activityZone.schools * 0.08);
-    if (playScore > activityScore * 0.82) return { state: "outdoor", dest: "activity" };
-    return { state: "activity", dest: "activity" };
-  }
-  if (minute < 19 * 60 + 15) return { state: "commute", dest: "home" };
-  if (minute < 21 * 60 + 45) return { state: "home", dest: "home" };
-  return { state: "sleep", dest: "home" };
+  const minute = ((minuteAbsolute + agent.scheduleNoise) % 1440 + 1440) % 1440;
+  if (agent.travelMode !== "walk" || !agent.schoolPoint) return {state:minute<375||minute>=1305?"sleep":"home",dest:"home"};
+  const start = agent.schoolStartMinute ?? 480 + agent.schoolShift;
+  const departure = agent.schoolDepartureMinute ?? start - 48;
+  const end = 15 * 60 + 25 + Math.round(agent.age > 11 ? 24 : -12);
+  if (minute < 375) return {state:"sleep",dest:"home"};
+  if (minute < departure) return {state:"home",dest:"home"};
+  if (minute < start) return {state:"commute",dest:"school"};
+  if (minute < end) return {state:"school",dest:"school"};
+  if (minute < end + 60) return {state:"commute",dest:"home"};
+  if (minute < 1305) return {state:"home",dest:"home"};
+  return {state:"sleep",dest:"home"};
 }
 
 function locationForTask(agent, task) {
@@ -6556,17 +6483,63 @@ function resetAgentPhysicalActivity(agent) {
 }
 
 function emptyGeometryOutcome() {
-  return {
-    distanceMeters: 0,
-    generalizedMeters: 0,
-    journeyMinutes: 0,
-    activeTravelMinutes: 0,
-    mvpaMinutes: 0,
-    vigorousMinutes: 0,
-    metyMinutes: 0,
-    verticalGainMeters: 0,
-    mechanicalMeters: 0,
-  };
+  return HKActivityAccounting.empty();
+}
+
+function networkAccountingPoints(path, pointForNode, edgeData) {
+  return path.nodeIds.map((nodeId, index) => ({
+    ...pointForNode(nodeId),
+    ...(index > 0 ? { accounting: edgeData(path.edgeIds[index - 1]) } : {}),
+  }));
+}
+
+function prepareRouteAccounting(agent) {
+  const route = agent.lastRoute;
+  if (!route || route.nodeNamespace === "merged-mainland" || route.accountingVersion) return;
+  if (!agent.route?.length && (route.mode === "local" || route.mode?.endsWith("local-connector"))) {
+    agent.route = [{ ...agent.target, terminal: true }];
+    agent.routeIndex = 0;
+    agent.routePurpose = agent.activeTrip?.purpose || null;
+  }
+  if (!agent.route?.length) return;
+  const speed = Math.max(35, agent.walkingSpeedMpm || 70) * Math.max(0.1, SCENARIOS[world.scenario].mobility);
+  let previous = agent.pos;
+  const segments = [];
+  for (const point of agent.route) {
+    const physicalMeters = physicalDistanceMeters(previous, point);
+    const horizontal = planarDistanceMeters(previous, point);
+    const source = point.accounting;
+    const proxy = route.mode === "tcs-temporal-schematic";
+    const kind = proxy ? "proxy" : point.travelKind === "line-haul" ? "mechanical" : source?.kind || "connector";
+    const meters = source?.meters ?? physicalMeters;
+    const cost = source?.generalizedMeters ?? meters;
+    const planarCost = source?.planarGeneralizedMeters ?? horizontal;
+    const timed = Number.isFinite(point.segmentMetersPerMinute) && point.segmentMetersPerMinute > 0;
+    const minutes = proxy ? route.estimatedMinutes : timed ? physicalMeters / point.segmentMetersPerMinute : cost / speed;
+    const planarMinutes = proxy || point.travelKind === "line-haul" ? minutes
+      : timed ? minutes * (cost > 0 ? planarCost / cost : 1) : planarCost / speed;
+    point.accounting = {
+      kind, activeShare: proxy ? route.activeTravelShare : 0,
+      meters: proxy ? route.routeMeters : meters,
+      horizontalMeters: proxy ? route.planarRouteMeters : source?.horizontalMeters ?? horizontal,
+      generalizedMeters: cost, planarGeneralizedMeters: planarCost, minutes, planarMinutes,
+      ascentMeters: proxy || point.travelKind === "line-haul" ? 0 : Math.max(0, ((point.z || 0) - (previous.z || 0)) * verticalUnitMeters),
+    };
+    point.accountingElapsed = 0;
+    if (point.waitMinutesRemaining > 0) segments.push({ kind: "wait", minutes: point.waitMinutesRemaining, planarMinutes: point.waitMinutesRemaining, meters: 0, horizontalMeters: 0 });
+    segments.push(point.accounting);
+    previous = point;
+  }
+  route.accountingVersion = HKActivityAccounting.VERSION;
+  const base = interpolateWalkingMety(agent.age, agent.walkingSpeedMpm);
+  const three = HKActivityAccounting.sum(segments, base, PHYSICAL_ACTIVITY_PARAMETERS);
+  const two = HKActivityAccounting.sum(segments, base, PHYSICAL_ACTIVITY_PARAMETERS, "twoD");
+  route.activeTravelShare = three.journeyMinutes ? three.activeTravelMinutes / three.journeyMinutes : 0;
+  route.planarActiveTravelShare = two.journeyMinutes ? two.activeTravelMinutes / two.journeyMinutes : 0;
+  route.activeWalkingMinutes = three.activeTravelMinutes - three.proxyActiveMinutes;
+  route.unverifiedAccessMinutes = three.connectorMinutes;
+  route.mechanicalMinutes = three.mechanicalMinutes;
+  route.activeAscentMeters = three.activeAscentMeters;
 }
 
 function emptyGeometryLedger() {
@@ -6586,57 +6559,27 @@ function resetAgentGeometryComparison(agent) {
 }
 
 function movementGeometryOutcome(agent, route, movement, condition) {
-  const planar = condition === "twoD";
-  const routeMeters3d = Number(route.routeMeters);
-  const routeMinutes3d = Number(route.estimatedMinutes);
-  if (![routeMeters3d, routeMinutes3d].every(Number.isFinite) || routeMinutes3d <= 0) return null;
-  const routeFraction = clamp((movement?.movingMinutes || 0) / routeMinutes3d, 0, 1);
-  const timeRatio = planar
-    ? Math.max(0, Number(route.planarEstimatedMinutes) || routeMinutes3d) / routeMinutes3d
-    : 1;
-  const distanceMeters = planar
-    ? Math.max(0, Number(route.planarRouteMeters) || routeMeters3d) * routeFraction
-    : routeMeters3d * routeFraction;
-  const generalizedMeters = planar
-    ? Math.max(0, Number(route.planarGeneralizedMeters) || Number(route.generalizedMeters) || routeMeters3d) * routeFraction
-    : Math.max(0, Number(route.generalizedMeters) || routeMeters3d) * routeFraction;
-  const journeyMinutes = Math.max(0, movement?.movingMinutes || 0) * timeRatio;
-  const activeTravelShare = clamp(
-    planar ? route.planarActiveTravelShare ?? route.activeTravelShare ?? 1 : route.activeTravelShare ?? 1,
-    0,
-    1,
-  );
-  const activeTravelMinutes = journeyMinutes * activeTravelShare;
-  const baseMety = interpolateWalkingMety(agent.age, agent.walkingSpeedMpm);
-  const routeVerticalGainMeters = Math.max(0, Number(route.verticalGainMeters) || 0);
-  const verticalGainMeters = planar ? 0 : routeVerticalGainMeters * routeFraction;
-  const grade = planar || routeMeters3d <= 0 ? 0 : routeVerticalGainMeters / routeMeters3d;
-  const slopeGain = Math.min(
-    PHYSICAL_ACTIVITY_PARAMETERS.maxSlopeMetyGain || 3,
-    grade * (PHYSICAL_ACTIVITY_PARAMETERS.slopeMetyGainPerGrade || 10),
-  );
-  const activeMety = baseMety + slopeGain;
-  const waitingMety = PHYSICAL_ACTIVITY_PARAMETERS.inactiveMety?.commuteWaiting || 1.5;
-  const mvpaThreshold = PHYSICAL_ACTIVITY_PARAMETERS.mvpaThresholdMety || 4;
-  const vigorousThreshold = PHYSICAL_ACTIVITY_PARAMETERS.vigorousThresholdMety || 6;
-  return {
-    distanceMeters,
-    generalizedMeters,
-    journeyMinutes,
-    activeTravelMinutes,
-    mvpaMinutes: activeMety >= mvpaThreshold ? activeTravelMinutes : 0,
-    vigorousMinutes: activeMety >= vigorousThreshold ? activeTravelMinutes : 0,
-    metyMinutes:
-      activeTravelMinutes * activeMety + Math.max(0, journeyMinutes - activeTravelMinutes) * waitingMety,
-    verticalGainMeters,
-    mechanicalMeters: planar ? 0 : Math.max(0, Number(route.mechanicalShare) || 0) * distanceMeters,
-  };
+  const segments = movement?.accountingSegments;
+  if (segments) return HKActivityAccounting.sum(segments, interpolateWalkingMety(agent.age, agent.walkingSpeedMpm), PHYSICAL_ACTIVITY_PARAMETERS, condition);
+  // Only an explicitly classified single segment may use this adapter.
+  if (!route.segmentExact || !(route.estimatedMinutes > 0)) return null;
+  const kind = route.activeTravelShare === 1 ? "walk" : route.mechanicalShare === 1 ? "mechanical" : "connector";
+  const segment = { kind, meters: route.routeMeters, horizontalMeters: route.planarRouteMeters,
+    generalizedMeters: route.generalizedMeters, planarGeneralizedMeters: route.planarGeneralizedMeters,
+    minutes: route.estimatedMinutes, planarMinutes: route.planarEstimatedMinutes, ascentMeters: route.verticalGainMeters };
+  return HKActivityAccounting.measure(HKActivityAccounting.fraction(segment, clamp((movement?.movingMinutes || 0) / route.estimatedMinutes, 0, 1)),
+    interpolateWalkingMety(agent.age, agent.walkingSpeedMpm), PHYSICAL_ACTIVITY_PARAMETERS, condition);
 }
 
 function addGeometryOutcome(target, outcome) {
   Object.keys(target).forEach((key) => {
     target[key] += outcome[key] || 0;
   });
+}
+
+function isMatchedWalkingRoute(agent, route) {
+  const mode = route.nodeNamespace === "merged-mainland" ? route.transportMode : agent.travelMode;
+  return route.comparisonStatus?.startsWith("matched-") && mode === "walk";
 }
 
 function recordPairedRouteComparison(agent, route) {
@@ -6647,7 +6590,7 @@ function recordPairedRouteComparison(agent, route) {
     return;
   }
   agent.geometryComparison.all.tripCount += 1;
-  const matched = route.comparisonStatus?.startsWith("matched-") && agent.travelMode === "walk";
+  const matched = isMatchedWalkingRoute(agent, route);
   if (!matched) return;
   agent.geometryComparison.matched.tripCount += 1;
 }
@@ -6660,8 +6603,7 @@ function accumulatePairedGeometryMovement(agent, movement) {
   if (!twoD || !threeD) return;
   addGeometryOutcome(agent.geometryComparison.all.twoD, twoD);
   addGeometryOutcome(agent.geometryComparison.all.threeD, threeD);
-  const matched =
-    agent.lastRoute.comparisonStatus?.startsWith("matched-") && agent.travelMode === "walk";
+  const matched = isMatchedWalkingRoute(agent, agent.lastRoute);
   if (!matched) return;
   addGeometryOutcome(agent.geometryComparison.matched.twoD, twoD);
   addGeometryOutcome(agent.geometryComparison.matched.threeD, threeD);
@@ -6701,23 +6643,14 @@ function accumulatePhysicalActivity(agent, simMinutes, movement) {
   let restMety = activeMety;
 
   if (agent.state === "commute") {
-    domain = "activeTravel";
-    const movingMinutes = clamp(movement?.movingMinutes || 0, 0, simMinutes);
-    const activeTravelShare = clamp(agent.lastRoute?.activeTravelShare ?? 1, 0, 1);
-    activeMinutes = Number.isFinite(movement?.activeMovingMinutes)
-      ? clamp(movement.activeMovingMinutes, 0, movingMinutes)
-      : movingMinutes * activeTravelShare;
-    const grade = agent.lastRoute?.routeMeters > 0
-      ? Math.max(0, (agent.lastRoute.verticalGainMeters || 0) / agent.lastRoute.routeMeters)
-      : movement?.horizontalMeters > 0
-        ? Math.max(0, movement.verticalGainMeters / movement.horizontalMeters)
-        : 0;
-    const slopeGain = Math.min(
-      PHYSICAL_ACTIVITY_PARAMETERS.maxSlopeMetyGain || 3,
-      grade * (PHYSICAL_ACTIVITY_PARAMETERS.slopeMetyGainPerGrade || 10),
-    );
-    activeMety = interpolateWalkingMety(agent.age, agent.walkingSpeedMpm) + slopeGain;
-    restMety = inactive.commuteWaiting || 1.5;
+    const outcome = agent.lastRoute && movementGeometryOutcome(agent, agent.lastRoute, movement, "threeD");
+    agent.physicalActivityTrackedMinutes += simMinutes;
+    agent.metyMinutes += (outcome?.metyMinutes || 0) + Math.max(0, simMinutes - (outcome?.journeyMinutes || 0)) * (inactive.commuteWaiting || 1.5);
+    agent.mvpaMinutes += outcome?.mvpaMinutes || 0;
+    agent.mvpaByDomain.activeTravel += outcome?.mvpaMinutes || 0;
+    agent.vigorousMinutes += outcome?.vigorousMinutes || 0;
+    agent.lightActivityMinutes += outcome?.lightActivityMinutes || 0;
+    return;
   } else if (agent.state === "school") {
     domain = "school";
     const school = PHYSICAL_ACTIVITY_PARAMETERS.school || {};
@@ -6755,86 +6688,42 @@ function advanceAgentMovement(agent, simMinutes, interaction) {
   const stateSpeed = agent.state === "commute" ? 1 : agent.state === "outdoor" ? 0.58 : 0.42;
 
   if (agent.route?.length && agent.routeIndex < agent.route.length) {
-    const hasSegmentTiming = agent.route.some((point) => Number.isFinite(point.segmentMetersPerMinute));
-    const routeImpedance = agent.lastRoute?.routeMeters
-      ? Math.max(1, (agent.lastRoute.generalizedMeters || agent.lastRoute.routeMeters) / agent.lastRoute.routeMeters)
-      : 1;
-    const routeMetersPerMinute = agent.lastRoute?.metersPerMinuteOverride
-      ? agent.lastRoute.metersPerMinuteOverride * stateSpeed
-      : (agent.speed * appUnitMeters * scenario.mobility * stateSpeed) / routeImpedance;
-    let remainingMeters = routeMetersPerMinute * simMinutes;
-    let travelledRouteMeters = 0;
+    prepareRouteAccounting(agent);
+    const accountingSegments = [];
     let horizontalTravelMeters = 0;
     let verticalGainMeters = 0;
-    let activeMovingMinutes = 0;
-    let inactiveCommuteMinutes = 0;
     let consumedMinutes = 0;
-    let guard = 0;
-    while (
-      (hasSegmentTiming ? consumedMinutes < simMinutes - 0.0001 : remainingMeters > 0.05) &&
-      agent.route &&
-      agent.routeIndex < agent.route.length &&
-      guard < 120
-    ) {
-      guard += 1;
+    while (consumedMinutes < simMinutes - 1e-10 && agent.routeIndex < agent.route.length) {
       const waypoint = agent.route[agent.routeIndex];
-      if (hasSegmentTiming && (waypoint.waitMinutesRemaining || 0) > 0) {
-        const waitMinutes = Math.min(
-          waypoint.waitMinutesRemaining,
-          Math.max(0, simMinutes - consumedMinutes),
-        );
+      if ((waypoint.waitMinutesRemaining || 0) > 0) {
+        const waitMinutes = Math.min(waypoint.waitMinutesRemaining, simMinutes - consumedMinutes);
         waypoint.waitMinutesRemaining -= waitMinutes;
         consumedMinutes += waitMinutes;
-        inactiveCommuteMinutes += waitMinutes;
-        if (consumedMinutes >= simMinutes - 0.0001) break;
+        accountingSegments.push({ kind: "wait", minutes: waitMinutes, planarMinutes: waitMinutes, meters: 0, horizontalMeters: 0 });
+        if (consumedMinutes >= simMinutes - 1e-10) break;
       }
-      const distanceMeters = physicalDistanceMeters(agent.pos, waypoint);
-      if (distanceMeters <= 0.01) {
-        agent.pos.x = waypoint.x;
-        agent.pos.y = waypoint.y;
-        agent.pos.z = waypoint.z;
-        if (Number.isInteger(waypoint.nodeId)) agent.currentNetworkNodeId = waypoint.nodeId;
-        agent.routeIndex += 1;
-        continue;
+      const segment = waypoint.accounting;
+      const remaining = Math.max(0, segment.minutes - waypoint.accountingElapsed);
+      const used = Math.min(remaining, simMinutes - consumedMinutes);
+      const progress = remaining > 1e-10 ? used / remaining : 1;
+      for (const axis of ["x", "y", "z"]) agent.pos[axis] += (waypoint[axis] - agent.pos[axis]) * progress;
+      if (segment.minutes > 0 && used > 0) {
+        const part = HKActivityAccounting.fraction(segment, used / segment.minutes);
+        accountingSegments.push(part);
+        horizontalTravelMeters += part.horizontalMeters;
+        verticalGainMeters += part.ascentMeters;
+        agent.distanceTravelled += part.horizontalMeters / appUnitMeters;
+        agent.distanceTravelledMeters += part.horizontalMeters;
       }
-      const segmentMetersPerMinute = hasSegmentTiming
-        ? Math.max(0.01, Number(waypoint.segmentMetersPerMinute) || routeMetersPerMinute)
-        : routeMetersPerMinute;
-      const availableMeters = hasSegmentTiming
-        ? segmentMetersPerMinute * Math.max(0, simMinutes - consumedMinutes)
-        : remainingMeters;
-      const travelMeters = Math.min(availableMeters, distanceMeters);
-      const travelMinutes = segmentMetersPerMinute > 0 ? travelMeters / segmentMetersPerMinute : 0;
-      const t = travelMeters / distanceMeters;
-      const oldX = agent.pos.x;
-      const oldY = agent.pos.y;
-      const oldZ = agent.pos.z;
-      agent.pos.x += (waypoint.x - agent.pos.x) * t;
-      agent.pos.y += (waypoint.y - agent.pos.y) * t;
-      agent.pos.z += (waypoint.z - agent.pos.z) * t;
-      const horizontalMeters = Math.hypot(agent.pos.x - oldX, agent.pos.y - oldY) * appUnitMeters;
-      horizontalTravelMeters += horizontalMeters;
-      verticalGainMeters += Math.max(0, (agent.pos.z - oldZ) * verticalUnitMeters);
-      agent.distanceTravelled += horizontalMeters / appUnitMeters;
-      agent.distanceTravelledMeters += horizontalMeters;
-      travelledRouteMeters += travelMeters;
-      if (hasSegmentTiming) {
-        consumedMinutes += travelMinutes;
-        if (waypoint.travelKind === "line-haul") inactiveCommuteMinutes += travelMinutes;
-        else activeMovingMinutes += travelMinutes;
-      } else {
-        remainingMeters -= travelMeters;
-      }
-      if (travelMeters + 0.01 >= distanceMeters) {
+      consumedMinutes += used;
+      waypoint.accountingElapsed += used;
+      if (remaining - used <= 1e-10) {
+        agent.pos = { x: waypoint.x, y: waypoint.y, z: waypoint.z };
         if (Number.isInteger(waypoint.nodeId)) agent.currentNetworkNodeId = waypoint.nodeId;
         agent.routeIndex += 1;
       }
     }
-    if (agent.activeTrip && routeMetersPerMinute > 0) {
-      agent.activeTrip.elapsedMinutes += hasSegmentTiming
-        ? consumedMinutes
-        : travelledRouteMeters / routeMetersPerMinute;
-    }
+    if (agent.activeTrip) agent.activeTrip.elapsedMinutes += consumedMinutes;
     if (agent.routeIndex >= agent.route.length) {
       const completedPurpose = agent.routePurpose;
       agent.route = null;
@@ -6846,11 +6735,8 @@ function advanceAgentMovement(agent, simMinutes, interaction) {
       completeAgentTrip(agent, completedPurpose);
     }
     return {
-      movingMinutes: hasSegmentTiming
-        ? consumedMinutes
-        : routeMetersPerMinute > 0 ? travelledRouteMeters / routeMetersPerMinute : 0,
-      activeMovingMinutes: hasSegmentTiming ? activeMovingMinutes : null,
-      inactiveCommuteMinutes: hasSegmentTiming ? inactiveCommuteMinutes : null,
+      movingMinutes: consumedMinutes,
+      accountingSegments,
       horizontalMeters: horizontalTravelMeters,
       verticalGainMeters,
     };
@@ -6891,12 +6777,16 @@ function advanceAgentMovement(agent, simMinutes, interaction) {
   agent.distanceTravelledMeters += travelled * appUnitMeters;
   return {
     movingMinutes: simMinutes * t,
+    accountingSegments: [{ kind: "connector", minutes: simMinutes * t, planarMinutes: simMinutes * t,
+      meters: Math.hypot(travelled * appUnitMeters, (agent.pos.z - oldZ) * verticalUnitMeters),
+      horizontalMeters: travelled * appUnitMeters, ascentMeters: Math.max(0, (agent.pos.z - oldZ) * verticalUnitMeters) }],
     horizontalMeters: travelled * appUnitMeters,
     verticalGainMeters: Math.max(0, (agent.pos.z - oldZ) * verticalUnitMeters),
   };
 }
 
 function updateAgent(agent, simMinutes) {
+  if (window.CrossPackLive?.advance(agent, simMinutes)) return;
   if (isWholeHkScope()) return withWholeHkRegion(agent.scope, () => updateAgent(agent, simMinutes));
   const scheduledTask = getTask(agent, world.time);
   const task =
@@ -6965,6 +6855,13 @@ function updateAgent(agent, simMinutes) {
       agent.activityPoi = nextPoi;
       agent.target = locationForTask(agent, task);
       assignAgentRoute(agent, agent.target, task.dest);
+      // A crowd-triggered destination change is travel, not on-site activity.
+      // Keep its task key aligned so the next step retains the same route.
+      if (physicalDistanceMeters(agent.pos, agent.target) >= 3 || wholeHkWalkHeld(agent)) {
+        recordAgentStateEvent(agent, "commute", task.dest);
+        agent.state = "commute";
+        agent.taskKey = `commute:${task.dest}`;
+      }
       recordAvoidedDestination(agent);
       agent.reroutesToday += 1;
     }
@@ -6984,13 +6881,27 @@ function updateAgent(agent, simMinutes) {
 }
 
 function stepSimulation(realDeltaMs) {
-  const simMinutes = Math.min(8, (realDeltaMs / 1000) * world.speed);
-  const previousTime = world.time;
-  world.time = (world.time + simMinutes) % 1440;
-  world.elapsedMinutes += simMinutes;
-  world.comparisonWindowMinutes += simMinutes;
-  if (world.time < previousTime) {
-    world.comparisonWindowMinutes = world.time;
+  let remaining = Math.max(0, Math.min(8, (realDeltaMs / 1000) * world.speed));
+  while (remaining > 1e-10) {
+    const untilMidnight = 1440 - world.time;
+    const minutes = Math.min(remaining, untilMidnight);
+    const midnight = minutes >= untilMidnight - 1e-10;
+    world.time = midnight ? 1440 - 1e-8 : world.time + minutes;
+    world.elapsedMinutes += minutes;
+    world.comparisonWindowMinutes += minutes;
+    buildInteractionField();
+    world.agents.forEach((agent) => updateAgent(agent, minutes));
+    remaining -= minutes;
+    if (!midnight) continue;
+    world.lastCompletedDay = {
+      dayIndex: world.dayIndex, windowMinutes: world.comparisonWindowMinutes,
+      trackedMinutesMean: world.agents.reduce((sum, agent) => sum + agent.physicalActivityTrackedMinutes, 0) / Math.max(1, world.agents.length),
+      mvpaRawAgentMean: world.agents.reduce((sum, agent) => sum + agent.mvpaMinutes, 0) / Math.max(1, world.agents.length),
+    };
+    world.time = 0;
+    world.dayIndex += 1;
+    window.CrossPackLive?.onDayReset();
+    world.comparisonWindowMinutes = 0;
     world.avoidedDestinations = 0;
     world.routedTrips = 0;
     world.routeFallbacks = 0;
@@ -6998,15 +6909,14 @@ function stepSimulation(realDeltaMs) {
     world.multimodalRoutedTrips = 0;
     world.multimodalRouteFallbacks = 0;
     world.multimodalTripsByMode = {};
-    world.tripSequence = 0;
     world.agents.forEach((agent) => {
+      const carriedTrip = agent.activeTrip && agent.tripHistory.find((trip) => trip.id === agent.activeTrip.historyId);
       agent.heatDose = 0;
       agent.contactDose = 0;
       agent.distanceTravelled = 0;
       agent.distanceTravelledMeters = 0;
       agent.reroutesToday = 0;
       agent.avoidedDestinationToday = false;
-      agent.activeTrip = null;
       agent.lastNetworkRoute = null;
       agent.usedNetworkRouteToday = false;
       agent.schoolArrivalMinute = null;
@@ -7018,11 +6928,21 @@ function stepSimulation(realDeltaMs) {
       agent.schoolOnTime = null;
       resetAgentPhysicalActivity(agent);
       resetAgentObserverHistory(agent);
+      if (carriedTrip) {
+        agent.tripHistory.push({ ...carriedTrip, carriedFromPreviousDay: true });
+        agent.lastRoute.comparisonRecorded = false;
+        recordPairedRouteComparison(agent, agent.lastRoute);
+      }
     });
   }
   controls.time.value = String(Math.floor(world.time));
-  buildInteractionField();
-  world.agents.forEach((agent) => updateAgent(agent, simMinutes));
+}
+
+function restartAtTime(minute) {
+  world.running = false;
+  controls.time.value = String(clamp(Math.trunc(Number(minute) || 0), 0, 1439));
+  resetSimulation();
+  updatePanels();
 }
 
 function weightedPercentile(entries, probability) {
@@ -7086,6 +7006,9 @@ function computeGeometryComparison() {
       ),
       movementMetyMinutes: weightedMean(
         (agent) => outcome(agent, "all", condition, "metyMinutes"),
+      ),
+      movementNetMetyMinutes: weightedMean(
+        (agent) => outcome(agent, "all", condition, "metyMinutes") - outcome(agent, "all", condition, "journeyMinutes"),
       ),
       verticalGainMeters: weightedMean(
         (agent) => outcome(agent, "matched", condition, "verticalGainMeters"),
@@ -7798,30 +7721,10 @@ function updatePanels() {
       : realGeoData
         ? `${realBuildingLayer.length} real building models`
         : "Synthetic";
-  metricEls.behaviourSource.textContent = realGeoData
-    ? isPilotScope()
-      ? "DCCA Census + TCS2011 + EDB + iGeoCom"
-      : isIslandScope()
-        ? "80-DCCA Census + TCS2011 + EDB + iGeoCom"
-      : isKowloonScope()
-        ? "135-DCCA Census + TCS2011 + EDB + iGeoCom"
-      : isNtEastScope()
-        ? "107-DCCA Census + TCS2011 + EDB + iGeoCom"
-      : isNtWestScope()
-        ? "120-DCCA Census + TCS2011 + EDB + iGeoCom"
-      : isOutlyingIslandsScope()
-        ? "10-DCCA Census + TCS2011 + EDB + iGeoCom"
-      : "Census + EDB + LCSD + iGeoCom + OSM"
-    : "Model coefficients";
-  metricEls.tcsMobilitySource.textContent =
-    `${TCS2011_CHILD_MOBILITY.cohort.eligibleRespondents.toLocaleString()} TCS2011 respondents`;
-  metricEls.pedestrianNetworkSource.textContent = isRegionalScope()
-    ? `${(regionalManifest?.graph?.routeCount || 0).toLocaleString()} regional routes / directed OD A*`
-    : hk3dpnMetadata
-    ? `${hk3dpnMetadata.summary.sourceFeatureCount.toLocaleString()} routes / ` +
-      `${hk3dpnMetadata.summary.tileCount.toLocaleString()} offline tiles`
-    : "R34 + A09 extracts";
-  metricEls.physicalActivitySource.textContent = "Youth METy + TCS active segments";
+  metricEls.behaviourSource.textContent = "Census + EDB + uncalibrated priors";
+  metricEls.tcsMobilitySource.textContent = "Synthetic walking-only school journeys";
+  metricEls.pedestrianNetworkSource.textContent = "LandsD 3DPN / five regional directed graphs";
+  metricEls.physicalActivitySource.textContent = "Youth METy + model priors; live estimates";
   updateBuildingPanel();
 
   Array.from(metricEls.activityList.children).forEach((item, index) => {
@@ -7879,10 +7782,10 @@ function updateStatsView(metrics) {
         ["Mean travel", `${metrics.meanTravelKm.toFixed(1)} km`, true],
         ["School walk", metrics.meanSchoolTravelMinutes ? `${metrics.meanSchoolTravelMinutes.toFixed(1)} min` : "n/a", true],
         ["Route / direct", metrics.meanRouteCircuity ? `${metrics.meanRouteCircuity.toFixed(2)}x` : "n/a"],
-        ["Spatial routing", isRegionalScope() ? "Official regional 3DPN OD A*" : isPilotScope() ? "Official OD A*" : "Schematic"],
-        ["TCS walk mode", `${formatNumber(metrics.walkModeShare * 100, 1)}%`],
-        ["TCS mechanised", `${formatNumber(metrics.mechanisedModeShare * 100, 1)}%`],
-        ["TCS journey", `${formatNumber(metrics.meanTcsJourneyMinutes, 1)} min`],
+        ["Spatial routing", isRegionalScope() ? "Official regional 3DPN OD A*" : isPilotScope() ? "Official OD A*" : isWholeHkScope() ? "Five regional 3DPN graphs" : "Schematic"],
+        ["Synthetic walking mode", `${formatNumber(metrics.walkModeShare * 100, 1)}%`],
+        ["School walk unavailable", `${formatNumber(metrics.mechanisedModeShare * 100, 1)}%`],
+        ["Schedule duration prior", `${formatNumber(metrics.meanTcsJourneyMinutes, 1)} min`],
         ["On-time school", metrics.onTimeSchoolShare !== null ? `${Math.round(metrics.onTimeSchoolShare * 100)}%` : "pending"],
       ],
     },
@@ -7908,7 +7811,7 @@ function updateStatsView(metrics) {
         ["Mean occupied floor", metrics.verticalMean.toFixed(1)],
         ["Contact index", metrics.contactIndex.toFixed(0)],
         ["Crowded children", `${Math.round(metrics.crowdedShare * 100)}%`],
-        ["iGeoCom child POIs", metrics.focusChildPoiCount.toLocaleString()],
+        ["Child POIs", "Excluded from public edition"],
         ["Transport nodes", metrics.focusTransportNodeCount ? metrics.focusTransportNodeCount.toLocaleString() : "n/a"],
         ["Official buildings", officialBuildingCount],
         ["Scenario", SCENARIOS[world.scenario].name],
@@ -8106,31 +8009,7 @@ function updateComparisonDomains(data) {
   `).join("");
 }
 
-function updateComparisonView() {
-  const referenceAvailable = Boolean(comparisonReference?.webSummary?.[world.scope]);
-  if (comparisonMode === "reference" && !referenceAvailable) comparisonMode = "live";
-  const data = currentComparisonDataset();
-  comparisonEls.referenceButton.disabled = !referenceAvailable;
-  comparisonEls.referenceButton.classList.toggle("active", comparisonMode === "reference");
-  comparisonEls.liveButton.classList.toggle("active", comparisonMode === "live");
-  if (comparisonMode === "reference") {
-    const replications = comparisonReference?.design?.seedCountPerScope || 0;
-    comparisonEls.runLabel.textContent =
-      `V12.2 frozen pilot reference · ${data.pilot} · ${data.population.toLocaleString()} Agents · ${replications} seeds · ` +
-      "baseline 07:00-22:00";
-  } else {
-    comparisonEls.runLabel.textContent =
-      `${APP_RELEASE.version} live · ${data.pilot} · seed ${data.seed} · ${data.allTripCount.toLocaleString()} routed trips · ` +
-      `${Math.round(data.windowElapsedMinutes ?? data.elapsedMinutes)} min current-day window`;
-  }
-  comparisonEls.walkTimeDelta.textContent = signedValue(data.deltas.walkingTimeMinutes || 0, 1, " min");
-  comparisonEls.mvpaDelta.textContent = signedValue(data.deltas.activeTravelMvpaMinutes || 0, 1, " min");
-  comparisonEls.ascentDelta.textContent = signedValue(data.threeD.verticalGainMeters || 0, 0, " m");
-  comparisonEls.guidelineDelta.textContent = signedValue((data.deltas.guidelineShare || 0) * 100, 1, " pp");
-  updateComparisonDomains(data);
-  drawComparisonMetrics(data);
-  drawComparisonDistribution(data);
-}
+function updateComparisonView() {}
 
 function markOsmStaticDirty() {
   osmStaticDirty = true;
@@ -8199,114 +8078,7 @@ function updateExpansionRuntimeStatus(pack) {
   }
 }
 
-function updateKowloonLabView() {
-  const data = kowloonExperimentReference;
-  if (!data || !kowloonLabEls.runLabel) return;
-  const reference = data.aggregates.find((entry) => entry.population === 2000) || data.aggregates.at(-1);
-  const passedGates = data.gates.filter((gate) => gate.pass).length;
-  const generatedDate = new Date(data.generatedAt).toLocaleDateString("en-HK", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-  kowloonLabEls.runLabel.textContent =
-    `${data.design.runCount} fixed-seed morning-peak runs · frozen ${generatedDate} · ` +
-    `${data.sample.eligibleKowloonRespondents.toLocaleString()} eligible TCS respondents`;
-  kowloonLabEls.gateMetric.textContent = `${passedGates} / ${data.gates.length}`;
-  kowloonLabEls.holdoutMetric.textContent = data.sample.holdoutRespondents.toLocaleString();
-  kowloonLabEls.spatialMetric.textContent = `${formatNumber(reference.meanSpatialSchoolTripShare * 100, 2)}%`;
-  kowloonLabEls.runMetric.textContent = data.design.runCount.toLocaleString();
-  kowloonLabEls.internalStatus.textContent =
-    `Internal household holdout · ${data.status.toLowerCase()}`;
-  kowloonLabEls.internalStatus.classList.toggle("pass", data.status === "PASS");
-  kowloonLabEls.internalStatus.classList.toggle("review", data.status !== "PASS");
-  kowloonLabEls.externalStatus.textContent =
-    `External validation · ${data.externalValidationStatus.toLowerCase()}`;
-
-  if (!kowloonLabViewRendered) {
-    kowloonLabEls.groupRows.innerHTML = `
-      <div class="kowloon-lab-group-row header">
-        <span>School stage</span><span>Model walk</span><span>Estimation</span><span>Holdout</span><span>Mechanised time</span>
-      </div>
-      ${reference.groups.map((group) => `
-        <div class="kowloon-lab-group-row">
-          <strong>${group.label}<small>seed range ${formatNumber(group.modelWalkShareSeedRange * 100, 1)} pp</small></strong>
-          <strong>${formatNumber(group.modelWalkShareRaw * 100, 1)}%</strong>
-          <span>${formatNumber(group.estimationWalkShare * 100, 1)}%<small>|error| ${formatNumber(group.estimationWalkAbsoluteError * 100, 2)} pp</small></span>
-          <span>${formatNumber(group.holdoutWalkShare * 100, 1)}%<small>|error| ${formatNumber(group.holdoutWalkAbsoluteError * 100, 2)} pp</small></span>
-          <span>${formatNumber(group.modelActualMechanisedMeanMinutesRaw, 1)} min<small>holdout ${formatNumber(group.holdoutJourneyMeanMinutes, 1)} · |error| ${formatNumber(group.holdoutJourneyAbsoluteError, 2)}</small></span>
-        </div>
-      `).join("")}
-    `;
-
-    kowloonLabEls.timingRows.innerHTML = reference.groups.map((group) => {
-      const active = group.meanAccessEgressWalkMinutes;
-      const lineHaul = group.meanLineHaulMinutes;
-      const baseWait = group.meanBaseWaitMinutes;
-      const residual = group.meanCalibrationResidualMinutes;
-      const total = Math.max(0.01, active + lineHaul + baseWait + residual);
-      const width = (value) => `${(Math.max(0, value) / total) * 100}%`;
-      return `
-        <div class="kowloon-lab-timing-row">
-          <div class="kowloon-lab-timing-label"><strong>${group.label}</strong><span>${formatNumber(total, 1)} min model mean</span></div>
-          <div class="kowloon-lab-timing-bar" aria-label="${group.label} journey time decomposition">
-            <i class="active" style="width:${width(active)}"></i>
-            <i class="linehaul" style="width:${width(lineHaul)}"></i>
-            <i class="wait" style="width:${width(baseWait)}"></i>
-            <i class="residual" style="width:${width(residual)}"></i>
-          </div>
-          <div class="kowloon-lab-timing-key">
-            <span>Walk ${formatNumber(active, 1)}</span><span>Line-haul ${formatNumber(lineHaul, 1)}</span>
-            <span>Base wait ${formatNumber(baseWait, 1)}</span><span>Fitted residual ${formatNumber(residual, 1)} min</span>
-            <span>3D access effect +${formatNumber(group.meanMultimodal3dTimeCorrectionMinutes, 2)} min</span>
-          </div>
-        </div>
-      `;
-    }).join("");
-
-    const graphLabels = { road: "Road", rail: "Rail", ferry: "Ferry" };
-    kowloonLabEls.networkCards.innerHTML = Object.entries(data.network.osm.graphs).map(([key, graph]) => `
-      <div class="kowloon-lab-network-card">
-        <b>${graphLabels[key] || key}</b>
-        <div>
-          <strong>${graph.nodeCount.toLocaleString()} nodes · ${graph.edgeCount.toLocaleString()} edges</strong>
-          <span>Primary component ${formatNumber(graph.primaryComponentShare * 100, 1)}% · ${graph.accessPointCount.toLocaleString()} access points</span>
-        </div>
-      </div>
-    `).join("");
-
-    kowloonLabEls.scaleRows.innerHTML = `
-      <div class="kowloon-lab-scale-row header">
-        <span>Agents</span><span>Spatial trips</span><span>School time</span><span>3D access Δ</span><span>Travel MVPA</span><span>Vertical gain</span><span>On time</span><span>Runtime</span>
-      </div>
-      ${data.aggregates.map((entry) => `
-        <div class="kowloon-lab-scale-row">
-          <strong>${entry.population.toLocaleString()}</strong>
-          <span>${formatNumber(entry.meanSpatialSchoolTripShare * 100, 2)}%</span>
-          <span>${formatNumber(entry.meanActualSchoolTravelMinutes, 1)} min</span>
-          <span>+${formatNumber(entry.meanMultimodal3dTimeCorrectionMinutes, 2)} min</span>
-          <span>${formatNumber(entry.meanActiveTravelMvpaMinutes, 1)} min</span>
-          <span>${formatNumber(entry.meanRouteVerticalGainMeters, 1)} m</span>
-          <span>${formatNumber(entry.meanOnTimeSchoolShare * 100, 1)}%</span>
-          <span>${formatNumber(entry.meanElapsedSeconds, 1)} s</span>
-        </div>
-      `).join("")}
-    `;
-
-    kowloonLabEls.gateList.innerHTML = data.gates.map((gate) => `
-      <div class="kowloon-lab-gate-row">
-        <b class="${gate.pass ? "" : "review"}">${gate.pass ? "PASS" : "REVIEW"}</b>
-        <div><strong>${gate.label}</strong><small>${gate.threshold}</small></div>
-        <span>${gate.value}</span>
-      </div>
-    `).join("");
-    kowloonLabViewRendered = true;
-  }
-  const liveMetrics = world.metrics || computeMetrics();
-  kowloonLabEls.liveStatus.textContent = isKowloonScope()
-    ? `${formatTime(world.time)} · ${(liveMetrics.pilotRoutedTrips + liveMetrics.multimodalRoutedTrips).toLocaleString()} spatial trips · ${liveMetrics.multimodalRouteFallbacks.toLocaleString()} multimodal fallback`
-    : "Frozen evidence shown · select Kowloon scope for live Agents";
-}
+function updateKowloonLabView() {}
 
 function kowloonLabProjector() {
   const ratio = window.devicePixelRatio || 1;
@@ -8348,222 +8120,9 @@ function drawKowloonLabGraph(graph, project, options) {
   kowloonLabCtx.restore();
 }
 
-function drawKowloonLabView() {
-  if (!kowloonLabCanvas.width || !kowloonLabCanvas.height) return;
-  const { ratio, project } = kowloonLabProjector();
-  kowloonLabCtx.clearRect(0, 0, kowloonLabCanvas.width, kowloonLabCanvas.height);
-  kowloonLabCtx.fillStyle = "#dceae7";
-  kowloonLabCtx.fillRect(0, 0, kowloonLabCanvas.width, kowloonLabCanvas.height);
-  kowloonDccas.forEach((dcca) => {
-    dcca.polygon.forEach((ring) => {
-      drawExpansionPath(kowloonLabCtx, ring.map(([x, y]) => ({ x, y })), project, true);
-      kowloonLabCtx.fillStyle = "rgba(238,240,226,0.9)";
-      kowloonLabCtx.strokeStyle = "rgba(86,94,88,0.45)";
-      kowloonLabCtx.lineWidth = 0.55 * ratio;
-      kowloonLabCtx.fill();
-      kowloonLabCtx.stroke();
-    });
-  });
+function drawKowloonLabView() {}
 
-  if (v12_9KowloonRoutingGraph?.ready && kowloonDisplayEdgeIds.length) {
-    kowloonLabCtx.save();
-    kowloonLabCtx.beginPath();
-    const step = Math.max(1, Math.ceil(kowloonDisplayEdgeIds.length / 7000));
-    for (let index = 0; index < kowloonDisplayEdgeIds.length; index += step) {
-      const edgeId = kowloonDisplayEdgeIds[index];
-      const start = project(v12_9KowloonRoutingGraph.nodePoint(v12_9KowloonRoutingGraph.edgeFrom[edgeId]));
-      const end = project(v12_9KowloonRoutingGraph.nodePoint(v12_9KowloonRoutingGraph.edgeTo[edgeId]));
-      kowloonLabCtx.moveTo(start.x, start.y);
-      kowloonLabCtx.lineTo(end.x, end.y);
-    }
-    kowloonLabCtx.strokeStyle = "rgba(36,123,114,0.28)";
-    kowloonLabCtx.lineWidth = 0.7 * ratio;
-    kowloonLabCtx.stroke();
-    kowloonLabCtx.restore();
-  }
-
-  if (kowloonMultimodalGraph?.ready) {
-    drawKowloonLabGraph(kowloonMultimodalGraph.graphs.road, project, {
-      maxEdges: 6500,
-      color: "rgba(80,88,94,0.2)",
-      width: 0.65 * ratio,
-    });
-    drawKowloonLabGraph(kowloonMultimodalGraph.graphs.rail, project, {
-      maxEdges: 5000,
-      color: "rgba(199,101,113,0.65)",
-      width: 1.25 * ratio,
-    });
-    drawKowloonLabGraph(kowloonMultimodalGraph.graphs.ferry, project, {
-      maxEdges: 2600,
-      color: "rgba(61,120,167,0.72)",
-      width: 1.35 * ratio,
-      dash: [5 * ratio, 4 * ratio],
-    });
-  }
-
-  if (isKowloonScope()) {
-    const stride = Math.max(1, Math.ceil(world.agents.length / 2000));
-    kowloonLabCtx.save();
-    world.agents.forEach((agent, index) => {
-      if (index % stride !== 0) return;
-      const point = project(agent.pos);
-      kowloonLabCtx.beginPath();
-      kowloonLabCtx.arc(point.x, point.y, (agent.state === "commute" ? 2.6 : 1.8) * ratio, 0, Math.PI * 2);
-      kowloonLabCtx.fillStyle = rgba(STATE_META[agent.state]?.color || STATE_META.home.color, 0.8);
-      kowloonLabCtx.fill();
-      if (agent.state === "commute") {
-        kowloonLabCtx.strokeStyle = "rgba(255,255,255,0.9)";
-        kowloonLabCtx.lineWidth = 0.8 * ratio;
-        kowloonLabCtx.stroke();
-      }
-    });
-    kowloonLabCtx.restore();
-  }
-
-  drawSpatialSelection(kowloonLabCtx, "kowloonlab");
-
-  kowloonLabCtx.save();
-  kowloonLabCtx.fillStyle = "rgba(32,35,42,0.72)";
-  kowloonLabCtx.textAlign = "center";
-  kowloonLabCtx.font = `800 ${8 * ratio}px system-ui, sans-serif`;
-  kowloonDistricts.forEach((district) => {
-    const point = project(district);
-    kowloonLabCtx.fillText(district.name, point.x, point.y);
-  });
-  kowloonLabCtx.restore();
-}
-
-function updateExpansionView() {
-  const pack = activeExpansionPack();
-  const manifest = pack?.manifest;
-  const evidence = pack?.evidence;
-  if (!manifest) return;
-  const readiness = manifest.wholeHongKongReadiness;
-  const graph = manifest.graph;
-  const attachments = manifest.attachments;
-  const runtimeTests = evidence?.tests;
-  const homeAudit = attachments.residentialBuildingAudit;
-  const evidenceCounts = homeAudit.evidenceCounts || {};
-  const fallbackCount = Object.entries(evidenceCounts)
-    .filter(([code]) => code.includes("fallback"))
-    .reduce((sum, [, count]) => sum + count, 0);
-  const positiveCount = Math.max(0, homeAudit.count - fallbackCount);
-
-  expansionEls.regionSelect.value = pack.key;
-  expansionEls.mapTitle.textContent = pack.mapTitle;
-  expansionEls.ledgerTitle.textContent = pack.ledgerTitle;
-  expansionEls.claimTitle.textContent = pack.claimTitle;
-  expansionEls.pendingStatus.textContent = pack.pendingStatus;
-  setExpansionClaim(expansionEls.supportedClaim, "Supported", pack.supportedClaim);
-  setExpansionClaim(expansionEls.unsupportedClaim, "Not yet supported", pack.unsupportedClaim);
-  updateExpansionRuntimeStatus(pack);
-
-  expansionEls.hkDcca.textContent = `${readiness.availableDccaCount.toLocaleString()} / ${readiness.targetDccaCount.toLocaleString()}`;
-  expansionEls.hkGraph.textContent = `${(readiness.sourceNodeCount / 1_000_000).toFixed(2)}m nodes`;
-  expansionEls.hkEdges.textContent = `${(readiness.sourceEdgeCount / 1_000_000).toFixed(2)}m edges`;
-  expansionEls.hkTiles.textContent = readiness.sourceTileCount.toLocaleString();
-  expansionEls.hkLength.textContent = `${readiness.sourceLength3dKm.toLocaleString(undefined, { maximumFractionDigits: 0 })} km 3D`;
-  expansionEls.hkChildren.textContent = readiness.representedChildrenAge6To16.toLocaleString(undefined, { maximumFractionDigits: 0 });
-  expansionEls.hkPlaces.textContent = `${readiness.schoolLocationCount.toLocaleString()} / ${readiness.childPoiCount.toLocaleString()}`;
-  expansionEls.regionalGraph.textContent = `${graph.nodeCount.toLocaleString()} nodes · ${graph.edgeCount.toLocaleString()} edges`;
-  expansionEls.regionalCoverage.textContent = `${manifest.scope.dccaCount} DCCAs · ${graph.chunkCount} chunks`;
-  const eligibleEndpointShare = (graph.eligibleEndpointComponentNodeCount || graph.primaryComponentNodeCount || 0) /
-    Math.max(1, graph.nodeCount || 0);
-  expansionEls.regionalComponent.textContent =
-    `${(graph.primaryComponentShare * 100).toFixed(2)}% / ` +
-    `${(eligibleEndpointShare * 100).toFixed(2)}%`;
-  expansionEls.regionalLength.textContent = `${graph.length3dKm.toLocaleString(undefined, { maximumFractionDigits: 1 })} km 3D`;
-  expansionEls.regionalBuffer.textContent = `${manifest.scope.networkBufferMeters.toLocaleString()} m · ${graph.bufferedContextEdgeCount.toLocaleString()} edges`;
-  expansionEls.regionalPlaces.textContent =
-    `${homeAudit.count.toLocaleString()} homes · ` +
-    `${attachments.schoolAudit.count.toLocaleString()} schools · ${attachments.childPoiAudit.count.toLocaleString()} POIs`;
-  expansionEls.residentialEvidence.textContent = fallbackCount
-    ? `${positiveCount.toLocaleString()} positive · ${fallbackCount.toLocaleString()} audited fallback`
-    : `${positiveCount.toLocaleString()} positive · no fallback`;
-  expansionEls.regionalChildren.textContent =
-    `${manifest.regionalPopulationEvidence.representedChildrenAge6To16.toLocaleString(undefined, { maximumFractionDigits: 0 })} children · ` +
-    `${manifest.regionalPopulationEvidence.dccaAgeStratumCount} strata`;
-  expansionEls.crossTile.textContent =
-    `${(evidence?.graph?.crossChunkEdges || 0).toLocaleString()} edges · ` +
-    `${(runtimeTests?.crossChunkOdPairs || 0).toLocaleString()} tested ODs`;
-
-  const state = expansionState.statusByRegion[pack.key];
-  if (state === "idle") expansionEls.loadStatus.textContent = "Official graph ready to load";
-  if (state === "ready") {
-    expansionEls.loadStatus.textContent =
-      `${pack.graph.nodeX.length.toLocaleString()} nodes loaded · exact cross-chunk route shown`;
-  }
-  if (state === "error" || state === "unavailable") {
-    expansionEls.loadStatus.textContent = "Runtime graph unavailable; frozen audit remains visible";
-  }
-
-  const route = selectedExpansionRoute();
-  if (route) {
-    expansionEls.routeSelect.value = String(expansionState.selectedRouteIndex);
-    expansionEls.routeOd.textContent = `${expansionEndpointLabel(route.start)} to ${expansionEndpointLabel(route.destination)}`;
-    expansionEls.routeDistance.textContent = `${route.pathMeters.toLocaleString(undefined, { maximumFractionDigits: 0 })} m`;
-    expansionEls.routeCost.textContent = `${route.generalizedMeters.toLocaleString(undefined, { maximumFractionDigits: 0 })} m-eq`;
-    expansionEls.routeGain.textContent = `${route.verticalGainMeters.toLocaleString(undefined, { maximumFractionDigits: 1 })} m`;
-    const chunks = route.traversedChunks;
-    const chunkPreview = chunks.length <= 4
-      ? chunks.join(", ")
-      : `${chunks.slice(0, 2).join(", ")} … ${chunks.at(-1)}`;
-    expansionEls.routeTiles.textContent = `${chunks.length} · ${chunkPreview}`;
-    expansionEls.routeFeatures.textContent = `${(route.coveredShare * 100).toFixed(1)}% / ${(route.stairShare * 100).toFixed(1)}%`;
-  }
-}
-
-async function ensureExpansionGraphLoaded() {
-  const pack = activeExpansionPack();
-  if (!pack?.graph || expansionState.statusByRegion[pack.key] === "ready") return pack?.graph || null;
-  if (expansionState.loadPromises[pack.key]) return expansionState.loadPromises[pack.key];
-  expansionState.statusByRegion[pack.key] = "loading";
-  updateExpansionRuntimeStatus(pack);
-  expansionEls.loadStatus.textContent = "Loading official 3DPN graph 0%";
-  expansionState.loadPromises[pack.key] = pack.graph.load((progress) => {
-    const total = Math.max(1, progress.total || pack.manifest.graph.chunkCount);
-    expansionState.progressByRegion[pack.key] = clamp((progress.completed || 0) / total, 0, 1);
-    if (activeExpansionPack()?.key !== pack.key) return;
-    const phase = progress.phase === "assemble" ? "Assembling runtime graph" : "Loading official 3DPN graph";
-    expansionEls.loadStatus.textContent = `${phase} ${Math.round(expansionState.progressByRegion[pack.key] * 100)}%`;
-  }).then((graph) => {
-    if (pack.key === "ntWest") {
-      buildNtWestDisplayEdgeSample();
-      world.ntWestRoutingStatus = "ready";
-      world.ntWestRoutingProgress = 1;
-    }
-    if (pack.key === "islands") {
-      buildIslandsDisplayEdgeSample();
-      world.islandsRoutingStatus = "ready";
-      world.islandsRoutingProgress = 1;
-    }
-    if (pack.key === "ntEast") {
-      ensureNtEastDirectedCore();
-      buildNtEastDisplayEdgeSample();
-      world.ntEastRoutingStatus = "ready";
-      world.ntEastRoutingProgress = 1;
-    }
-    if (pack.key === "kowloon") {
-      ensureKowloonDirectedCore();
-      buildKowloonDisplayEdgeSample();
-      world.kowloonRoutingStatus = "ready";
-      world.kowloonRoutingProgress = 1;
-    }
-    expansionState.statusByRegion[pack.key] = "ready";
-    expansionState.progressByRegion[pack.key] = 1;
-    if (activeExpansionPack()?.key === pack.key) {
-      updateExpansionView();
-      drawExpansionView();
-    }
-    return graph;
-  }).catch((error) => {
-    console.error(`${pack.statusLabel} routing graph failed to load`, error);
-    expansionState.statusByRegion[pack.key] = "error";
-    if (activeExpansionPack()?.key === pack.key) updateExpansionView();
-    return null;
-  });
-  return expansionState.loadPromises[pack.key];
-}
+function updateExpansionView() {}
 
 function expansionProjector(manifest) {
   const ratio = window.devicePixelRatio || 1;
@@ -8702,161 +8261,7 @@ function drawExpansionElevationProfile(ctx, route, graph, ratio) {
   ctx.restore();
 }
 
-function drawExpansionView() {
-  const pack = activeExpansionPack();
-  const manifest = pack?.manifest;
-  const graph = pack?.graph;
-  if (!manifest || !expansionCanvas.width || !expansionCanvas.height) return;
-  const { ratio, project } = expansionProjector(manifest);
-  expansionCtx.clearRect(0, 0, expansionCanvas.width, expansionCanvas.height);
-  expansionCtx.fillStyle = "#dceae7";
-  expansionCtx.fillRect(0, 0, expansionCanvas.width, expansionCanvas.height);
-
-  const targetDccas = new Set(manifest.scope.dccaIds);
-  const dccas = (realGeoData?.dccas2019 || []).filter((dcca) => targetDccas.has(dcca.id));
-  const districtFills = {
-    e: "rgba(229,211,205,0.86)",
-    f: "rgba(231,222,185,0.86)",
-    g: "rgba(205,226,209,0.86)",
-    h: "rgba(201,220,230,0.86)",
-    j: "rgba(218,209,229,0.86)",
-    n: "rgba(208,226,207,0.88)",
-    p: "rgba(202,220,232,0.88)",
-    q: "rgba(231,210,216,0.88)",
-    r: "rgba(225,222,188,0.88)",
-  };
-  dccas.forEach((dcca) => {
-    dcca.polygon.forEach((ring) => {
-      drawExpansionPath(expansionCtx, ring.map(([x, y]) => ({ x, y })), project, true);
-      const districtCode = dcca.id.replace("dcca-2019-", "").charAt(0);
-      expansionCtx.fillStyle = districtFills[districtCode] || "rgba(219,229,210,0.84)";
-      expansionCtx.strokeStyle = "rgba(68,76,71,0.68)";
-      expansionCtx.lineWidth = 0.9 * ratio;
-      expansionCtx.fill();
-      expansionCtx.stroke();
-    });
-  });
-
-  expansionCtx.save();
-  expansionCtx.setLineDash([5 * ratio, 5 * ratio]);
-  expansionCtx.strokeStyle = "rgba(73,112,105,0.5)";
-  expansionCtx.lineWidth = ratio;
-  manifest.chunks.forEach((chunk) => {
-    const [originE, originN] = manifest.coordinates.appOriginHk1980;
-    const unit = manifest.coordinates.appUnitMeters;
-    const [minE, minN, maxE, maxN] = chunk.boundsHk1980;
-    const ring = [[minE, minN], [maxE, minN], [maxE, maxN], [minE, maxN], [minE, minN]]
-      .map(([easting, northing]) => ({ x: (easting - originE) / unit, y: (northing - originN) / unit }));
-    drawExpansionPath(expansionCtx, ring, project);
-    expansionCtx.stroke();
-  });
-  expansionCtx.restore();
-
-  if (graph?.ready) {
-    const step = Math.max(1, Math.ceil(graph.edgeFrom.length / 9000));
-    expansionCtx.beginPath();
-    for (let edgeId = 0; edgeId < graph.edgeFrom.length; edgeId += step) {
-      const start = project(graph.nodePoint(graph.edgeFrom[edgeId]));
-      const end = project(graph.nodePoint(graph.edgeTo[edgeId]));
-      expansionCtx.moveTo(start.x, start.y);
-      expansionCtx.lineTo(end.x, end.y);
-    }
-    expansionCtx.strokeStyle = "rgba(38,88,79,0.26)";
-    expansionCtx.lineWidth = 0.65 * ratio;
-    expansionCtx.stroke();
-
-    const attachmentGroups = [
-      [manifest.attachments.residentialBuildings, 4, "home", 700],
-      [manifest.attachments.schools, 1, "school", 700],
-      [manifest.attachments.childPois, 1, "poi", 700],
-    ];
-    attachmentGroups.forEach(([records, nodeIndex, type, maxMarkers]) => {
-      const stride = Math.max(1, Math.ceil(records.length / maxMarkers));
-      for (let index = 0; index < records.length; index += stride) {
-        drawExpansionMarker(expansionCtx, graph.nodePoint(records[index][nodeIndex]), type, project, ratio);
-      }
-    });
-
-    const homeSchema = manifest.attachments.residentialBuildingSchema || [];
-    const evidenceIndex = homeSchema.indexOf("evidenceCode");
-    const homeNodeIndex = homeSchema.indexOf("nodeId");
-    if (evidenceIndex >= 0 && homeNodeIndex >= 0) {
-      manifest.attachments.residentialBuildings
-        .filter((record) => String(record[evidenceIndex]).includes("fallback"))
-        .forEach((record) => {
-          drawExpansionMarker(expansionCtx, graph.nodePoint(record[homeNodeIndex]), "home", project, ratio, false, "fallback");
-        });
-    }
-
-    const route = selectedExpansionRoute();
-    if (route?.nodeIds?.length) {
-      const points = route.nodeIds.map((nodeId) => graph.nodePoint(nodeId));
-      drawExpansionPath(expansionCtx, points, project);
-      expansionCtx.strokeStyle = "rgba(255,255,255,0.94)";
-      expansionCtx.lineWidth = 5 * ratio;
-      expansionCtx.lineJoin = "round";
-      expansionCtx.stroke();
-      drawExpansionPath(expansionCtx, points, project);
-      expansionCtx.strokeStyle = "#b64f45";
-      expansionCtx.lineWidth = 2.6 * ratio;
-      expansionCtx.stroke();
-      drawExpansionMarker(expansionCtx, graph.nodePoint(route.start.nodeId), route.start.type, project, ratio, true);
-      drawExpansionMarker(expansionCtx, graph.nodePoint(route.destination.nodeId), route.destination.type, project, ratio, true);
-      drawExpansionElevationProfile(expansionCtx, route, graph, ratio);
-    }
-  }
-  drawExpansionLabels(expansionCtx, dccas, selectedExpansionRoute(), project, ratio);
-}
-
-const TERRAIN_QA_REGION_LABELS = Object.freeze({
-  all: "Whole Hong Kong",
-  hki: "Hong Kong Island",
-  kowloon: "Kowloon",
-  ntEast: "New Territories East",
-  ntWest: "New Territories West",
-  islands: "Outlying Islands",
-});
-
-const TERRAIN_QA_METRICS = Object.freeze({
-  topologyChangedShare: {
-    title: "Changed path share",
-    note: "Fill = share of two DCCA sentinel ODs selecting a different exact path",
-    bins: [
-      { max: 0, color: "#dce7e2", label: "0%" },
-      { max: 0.5, color: "#d89b55", label: "50%" },
-      { max: 1, color: "#b94f55", label: "100%" },
-    ],
-  },
-  boundedEdgeExposureShare: {
-    title: "Bounded-edge exposure",
-    note: "Fill = share of paired ODs touching a short, unclassified source edge above 100% grade",
-    bins: [
-      { max: 0, color: "#dce7e2", label: "0%" },
-      { max: 0.5, color: "#e2c76f", label: "1-50%" },
-      { max: 1, color: "#bd6b47", label: "51-100%" },
-    ],
-  },
-  maxAbsoluteWalkingMinuteDelta: {
-    title: "Maximum walking-time effect",
-    note: "Fill = largest absolute source-versus-bounded time difference among two fixed ODs",
-    bins: [
-      { max: 0, color: "#dce7e2", label: "0 min" },
-      { max: 0.01, color: "#c9ddd2", label: "0-0.01" },
-      { max: 0.05, color: "#e4c36e", label: "0.01-0.05" },
-      { max: 0.15, color: "#d98951", label: "0.05-0.15" },
-      { max: Infinity, color: "#b94f55", label: ">0.15 min" },
-    ],
-  },
-  sourceCriticalRouteShare: {
-    title: "Source critical-route share",
-    note: "Fill = share of paired ODs containing an unclassified source edge above 100% grade",
-    bins: [
-      { max: 0, color: "#dce7e2", label: "0%" },
-      { max: 0.5, color: "#d8bd72", label: "1-50%" },
-      { max: 1, color: "#a65354", label: "51-100%" },
-    ],
-  },
-});
+function drawExpansionView() {}
 
 function terrainQaRows() {
   const rows = terrainReliabilityReference?.byDcca || [];
@@ -8897,91 +8302,7 @@ function terrainQaProjector(areas) {
   };
 }
 
-function drawTerrainQaView() {
-  resizeCanvas(terrainQaCanvas);
-  const ctx = terrainQaCtx;
-  const width = terrainQaCanvas.width;
-  const height = terrainQaCanvas.height;
-  ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = "#e4efec";
-  ctx.fillRect(0, 0, width, height);
-  if (!terrainReliabilityReference) return;
-
-  const rows = terrainQaRows();
-  const areas = terrainQaAreas(rows);
-  const byDcca = new Map(rows.map((row) => [row.dccaId, row]));
-  const { ratio, project } = terrainQaProjector(areas);
-  const hitAreas = [];
-
-  areas.forEach((area) => {
-    const row = byDcca.get(area.id);
-    const projectedRings = [];
-    area.polygon.forEach((ring) => {
-      if (ring.length < 3) return;
-      const projectedRing = ring.map((point) => {
-        const screen = project(point);
-        return [screen.x, screen.y];
-      });
-      projectedRings.push(projectedRing);
-      ctx.beginPath();
-      projectedRing.forEach(([x, y], index) => {
-        if (index === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.closePath();
-      ctx.fillStyle = row ? terrainQaFill(Number(row[terrainQaState.metric]) || 0) : "#e3e7e2";
-      ctx.fill();
-      ctx.strokeStyle = "rgba(32, 35, 42, 0.28)";
-      ctx.lineWidth = 0.65 * ratio;
-      ctx.stroke();
-    });
-    hitAreas.push({ dccaId: area.id, rings: projectedRings });
-  });
-
-  const changedRows = rows.filter((row) => row.topologyChangedCount > 0);
-  changedRows.forEach((row) => {
-    const area = focusAreaById.get(row.dccaId);
-    if (!area) return;
-    const point = project([area.x, area.y]);
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, 3.7 * ratio, 0, Math.PI * 2);
-    ctx.fillStyle = "#7d2630";
-    ctx.fill();
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
-    ctx.lineWidth = 1.4 * ratio;
-    ctx.stroke();
-  });
-
-  const selectedArea = focusAreaById.get(terrainQaState.selectedDccaId);
-  if (selectedArea && byDcca.has(selectedArea.id)) {
-    selectedArea.polygon.forEach((ring) => {
-      drawExpansionPath(ctx, ring, (point) => project(point), true);
-      ctx.strokeStyle = "#20232a";
-      ctx.lineWidth = 2.2 * ratio;
-      ctx.stroke();
-    });
-  }
-
-  const labelIds = new Set(changedRows.map((row) => row.dccaId));
-  if (terrainQaState.selectedDccaId) labelIds.add(terrainQaState.selectedDccaId);
-  ctx.save();
-  ctx.font = `800 ${9 * ratio}px Inter, sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "bottom";
-  labelIds.forEach((dccaId) => {
-    const area = focusAreaById.get(dccaId);
-    if (!area || !byDcca.has(dccaId)) return;
-    const point = project([area.x, area.y]);
-    const label = String(area.code || dccaId).replace(/^DCCA\s+/i, "");
-    const textWidth = ctx.measureText(label).width;
-    ctx.fillStyle = "rgba(251, 252, 248, 0.88)";
-    ctx.fillRect(point.x - textWidth / 2 - 3 * ratio, point.y - 17 * ratio, textWidth + 6 * ratio, 13 * ratio);
-    ctx.fillStyle = "#20232a";
-    ctx.fillText(label, point.x, point.y - 5 * ratio);
-  });
-  ctx.restore();
-  terrainQaState.hitAreas = hitAreas;
-}
+function drawTerrainQaView() {}
 
 function terrainQaPercent(value, digits = 1) {
   return `${(Number(value || 0) * 100).toFixed(digits)}%`;
@@ -9004,133 +8325,7 @@ function selectTerrainQaDcca(dccaId) {
   updateTerrainQaView();
 }
 
-function updateTerrainQaView() {
-  const data = terrainReliabilityReference;
-  if (!data) {
-    terrainQaEls.internalStatus.textContent = "Terrain audit data unavailable";
-    terrainQaEls.internalStatus.className = "terrain-qa-status pending";
-    return;
-  }
-
-  const whole = data.wholeHongKong;
-  terrainQaEls.internalStatus.textContent = `Internal route audit · ${data.status === "PASS_INTERNAL" ? "pass" : "review"}`;
-  terrainQaEls.internalStatus.className = `terrain-qa-status ${data.status === "PASS_INTERNAL" ? "pass" : "pending"}`;
-  terrainQaEls.externalStatus.textContent = `External elevation review · ${String(data.externalValidationStatus || "PENDING").toLowerCase()}`;
-  terrainQaEls.dccaMetric.textContent = `${whole.dccaCount.toLocaleString()} / ${dccaAreas.length.toLocaleString()}`;
-  terrainQaEls.odMetric.textContent = whole.pairedOdCount.toLocaleString();
-  terrainQaEls.originMetric.textContent = `${whole.residentialOriginPairedOdCount.toLocaleString()} residential · ${whole.networkSentinelPairedOdCount.toLocaleString()} network sentinel`;
-  terrainQaEls.edgeMetric.textContent = whole.uniqueShortCriticalAnomalyCount.toLocaleString();
-  terrainQaEls.changedMetric.textContent = terrainQaPercent(whole.topologyChangedShare);
-  terrainQaEls.timeMetric.textContent = terrainQaSigned(whole.meanWalkingMinuteDelta, 3, " min");
-  terrainQaEls.mvpaMetric.textContent = whole.mvpaClassificationChangeCount.toLocaleString();
-
-  const rows = terrainQaRows();
-  if (!rows.some((row) => row.dccaId === terrainQaState.selectedDccaId)) {
-    terrainQaState.selectedDccaId = [...rows].sort(
-      (a, b) =>
-        (Number(b[terrainQaState.metric]) || 0) - (Number(a[terrainQaState.metric]) || 0) ||
-        b.maxAbsoluteWalkingMinuteDelta - a.maxAbsoluteWalkingMinuteDelta,
-    )[0]?.dccaId || null;
-  }
-
-  terrainQaEls.regionSelect.value = terrainQaState.regionKey;
-  terrainQaEls.metricSelect.value = terrainQaState.metric;
-  const metric = TERRAIN_QA_METRICS[terrainQaState.metric];
-  const regionLabel = TERRAIN_QA_REGION_LABELS[terrainQaState.regionKey];
-  terrainQaEls.mapTitle.textContent = metric.title;
-  terrainQaEls.mapSubtitle.textContent = `${regionLabel} · ${rows.length.toLocaleString()} DCCAs · two fixed ODs each`;
-  terrainQaEls.legendTitle.textContent = metric.title;
-  terrainQaEls.legendNote.textContent = metric.note;
-  terrainQaEls.legendItems.innerHTML = metric.bins.map(
-    (bin) => `<span><i style="--terrain-color:${bin.color}"></i>${bin.label}</span>`,
-  ).join("");
-
-  const selectedRow = data.byDcca.find((row) => row.dccaId === terrainQaState.selectedDccaId);
-  const selectedArea = focusAreaById.get(terrainQaState.selectedDccaId);
-  if (selectedRow && selectedArea) {
-    const areaCode = String(selectedArea.code || selectedRow.dccaId).replace(/^DCCA\s+/i, "DCCA ");
-    terrainQaEls.detailTitle.textContent = `${areaCode} · ${selectedArea.name || selectedRow.region}`;
-    terrainQaEls.detailSubtitle.textContent = `${selectedRow.region} · ${selectedRow.pairedOdCount} deterministic paired ODs`;
-    terrainQaEls.detailMetrics.innerHTML = [
-      ["Path topology changed", `${selectedRow.topologyChangedCount} / ${selectedRow.pairedOdCount}`],
-      ["Bounded-edge exposure", terrainQaPercent(selectedRow.boundedEdgeExposureShare)],
-      ["Source critical-route share", terrainQaPercent(selectedRow.sourceCriticalRouteShare)],
-      ["Mean walking-time delta", terrainQaSigned(selectedRow.meanWalkingMinuteDelta, 3, " min")],
-      ["Maximum absolute delta", `${selectedRow.maxAbsoluteWalkingMinuteDelta.toFixed(3)} min`],
-      ["Mean MVPA delta", terrainQaSigned(selectedRow.meanMvpaMinuteDelta, 3, " min")],
-      ["MVPA threshold flips", selectedRow.mvpaClassificationChangeCount.toLocaleString()],
-      [
-        "Origin evidence",
-        selectedRow.networkSentinelPairCount > 0
-          ? `${selectedRow.networkSentinelPairCount} network sentinels`
-          : `${selectedRow.residentialOriginPairCount} residential attachments`,
-      ],
-    ].map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
-    const usesNetworkSentinel = selectedRow.networkSentinelPairCount > 0;
-    terrainQaEls.detailNote.textContent = usesNetworkSentinel
-      ? "C26 has no evidence-backed residential attachment in the graph pack. Its two origins are explicitly labelled DCCA representative-point network sentinels and are not interpreted as homes."
-      : "Both origins use CSDI-derived residential attachments. Endpoints are deterministic sentinels, not observed homes, enrolments, route traces or a local population estimate.";
-  }
-
-  terrainQaEls.regionRows.innerHTML = data.regions.map((region) => `
-    <button class="terrain-qa-region-row ${terrainQaState.regionKey === region.key ? "active" : ""}" data-region="${region.key}">
-      <strong>${region.label}<small>${region.dccaCount} DCCAs · ${region.pairedOdCount} ODs</small></strong>
-      <span>${terrainQaPercent(region.topologyChangedShare)}<small>changed paths</small></span>
-      <span>${terrainQaPercent(region.boundedEdgeExposureShare)}<small>edge exposure</small></span>
-      <span>${terrainQaSigned(region.meanWalkingMinuteDelta, 3, " min")}<small>mean time delta</small></span>
-      <span>${region.edgeAudit.shortCriticalEdgeRecords.toLocaleString()}<small>short critical records</small></span>
-    </button>
-  `).join("");
-
-  const affectedRoutes = data.topImpactedOds
-    .filter((od) => terrainQaState.regionKey === "all" || od.regionKey === terrainQaState.regionKey)
-    .slice(0, 12);
-  terrainQaEls.routeRows.innerHTML = affectedRoutes.map((od) => {
-    const area = focusAreaById.get(od.dccaId);
-    const areaCode = String(area?.code || od.dccaId).replace(/^DCCA\s+/i, "DCCA ");
-    return `
-      <button class="terrain-qa-route-row ${terrainQaState.selectedDccaId === od.dccaId ? "active" : ""}" data-dcca="${od.dccaId}">
-        <strong>${areaCode}<small>${od.region}</small></strong>
-        <span>${od.purpose === "child-poi" ? "Child POI" : "School"}<small>${od.topologyChanged ? "different path" : "same path"}</small></span>
-        <span>${terrainQaSigned(od.delta.walkingMinutes, 3, " min")}<small>walk time</small></span>
-        <span>${od.bounded.boundedEdgeCount}<small>bounded edges</small></span>
-        <span>${(od.source.maxUnclassifiedGrade * 100).toFixed(0)}%<small>source max grade</small></span>
-      </button>`;
-  }).join("");
-
-  const visibleRegions = terrainQaState.regionKey === "all"
-    ? data.regions
-    : data.regions.filter((region) => region.key === terrainQaState.regionKey);
-  const featureTotals = new Map();
-  visibleRegions.forEach((region) => {
-    region.edgeAudit.byFeature.forEach((feature) => {
-      const current = featureTotals.get(feature.featureType) || { ...feature, review: 0, critical: 0, shortCritical: 0 };
-      current.review += feature.review;
-      current.critical += feature.critical;
-      current.shortCritical += feature.shortCritical;
-      featureTotals.set(feature.featureType, current);
-    });
-  });
-  const features = [...featureTotals.values()].sort((a, b) => b.shortCritical - a.shortCritical).slice(0, 8);
-  const featureMax = Math.max(1, ...features.map((feature) => feature.shortCritical));
-  terrainQaEls.featuresSubtitle.textContent = `${regionLabel} · source-edge records in regional pack${visibleRegions.length > 1 ? "s" : ""}`;
-  terrainQaEls.featureRows.innerHTML = features.map((feature) => `
-    <div class="terrain-qa-feature-row">
-      <strong>${feature.label}<span>type ${feature.featureType}</span></strong>
-      <div class="terrain-qa-feature-bar"><i style="width:${Math.max(2, feature.shortCritical / featureMax * 100).toFixed(1)}%"></i></div>
-      <span>${feature.shortCritical.toLocaleString()}<small>short critical</small></span>
-    </div>
-  `).join("");
-
-  terrainQaEls.gateRows.innerHTML = data.gates.map((gate) => `
-    <div class="terrain-qa-gate-row">
-      <b>${gate.pass ? "PASS" : "REVIEW"}</b>
-      <strong>${gate.label}<small>Threshold ${gate.threshold}</small></strong>
-      <span>${typeof gate.value === "number" ? gate.value.toLocaleString() : gate.value}</span>
-    </div>
-  `).join("");
-  drawTerrainQaView();
-}
+function updateTerrainQaView() {}
 
 function handleTerrainQaClick(event) {
   const rect = terrainQaCanvas.getBoundingClientRect();
@@ -10025,6 +9220,7 @@ function drawBuildingMapSchools(ctx) {
 
 function drawBuildingDistributionLegend(ctx) {
   const ratio = window.devicePixelRatio || 1;
+  if (document.body.classList.contains("workbench") && buildingCanvas.clientWidth < 620 && document.getElementById("buildingsView").dataset.legendOpen !== "true") return;
   const rows = [
     {
       label: isPilotScope() ? "CSDI building footprints" : "CSDI density · size = built form signal",
@@ -10103,6 +9299,7 @@ function drawBuildingDistributionLegend(ctx) {
 
 function drawBuildingModelLegend(ctx, model) {
   const ratio = window.devicePixelRatio || 1;
+  if (document.body.classList.contains("workbench") && buildingCanvas.clientWidth < 620 && document.getElementById("buildingsView").dataset.legendOpen !== "true") return;
   const cssWidth = buildingCanvas.width / ratio;
   const compact = cssWidth < 620;
   const width = Math.min(292, cssWidth - 32) * ratio;
@@ -11074,6 +10271,8 @@ function osmProjectLocal(point) {
 }
 
 function getOsmTile(z, x, y) {
+  // Covers the first animation frame before the file-launch map adapter loads.
+  if (location.protocol === "file:") return null;
   const tileCount = 2 ** z;
   if (y < 0 || y >= tileCount) return null;
   const wrappedX = ((x % tileCount) + tileCount) % tileCount;
@@ -11317,10 +10516,10 @@ function drawOsmLegend(ctx) {
 
   ctx.font = `800 ${12 * ratio}px Inter, sans-serif`;
   ctx.fillStyle = "rgba(32, 35, 42, 0.82)";
-  ctx.fillText(isPilotScope() ? `OSM ${activePilot.code} network pilot` : isRegionalScope() ? `OSM ${regionalScopeLabel()} ABM` : "OSM macro map", x + 14 * ratio, y + 22 * ratio);
+  ctx.fillText(location.protocol === "file:" ? "Local map · bundled geographic data" : isPilotScope() ? `OSM ${activePilot.code} network pilot` : isRegionalScope() ? `OSM ${regionalScopeLabel()} ABM` : "OSM macro map", x + 14 * ratio, y + 22 * ratio);
   ctx.font = `700 ${9 * ratio}px Inter, sans-serif`;
   ctx.fillStyle = "rgba(32, 35, 42, 0.56)";
-  ctx.fillText("OpenStreetMap basemap · active ABM overlays only", x + 14 * ratio, y + 41 * ratio);
+  ctx.fillText(location.protocol === "file:" ? "LandsD / CSDI / EDB · boundaries include sea" : "OpenStreetMap basemap · active ABM overlays only", x + 14 * ratio, y + 41 * ratio);
   ctx.font = `700 ${11 * ratio}px Inter, sans-serif`;
   rows.forEach((row, index) => {
     const yy = y + (68 + index * 26) * ratio;
@@ -11612,7 +10811,9 @@ function populateAgentObserverControls() {
   const population = Math.max(1, world.agents.length);
   agentObserver.selectedAgentId = clamp(agentObserver.selectedAgentId || 1, 1, population);
   agentObserverEls.idInput.max = String(population);
-  agentObserverEls.idInput.value = String(agentObserver.selectedAgentId);
+  if (document.activeElement !== agentObserverEls.idInput) {
+    agentObserverEls.idInput.value = String(agentObserver.selectedAgentId);
+  }
   agentObserver.lastControlPopulation = population;
 }
 
@@ -11699,6 +10900,8 @@ function mergeObserverPolylines(...polylines) {
 }
 
 function resolveAgentTripGeometry(agent, trip) {
+  const mergedGeometry = window.CrossPackLive?.geometry(trip);
+  if (mergedGeometry) return mergedGeometry;
   if (!trip) {
     return {
       kind: "none",
@@ -12112,7 +11315,8 @@ function updateSpatialSelectionInspector() {
     spatialSelectionEls.type.textContent = "Child Agent";
     spatialSelectionEls.title.textContent = `Agent ${entity.id}`;
     spatialSelectionEls.subtitle.textContent =
-      `${entity.homeZone?.code || "Home"} → ${entity.schoolPoint?.name || entity.schoolZone?.name || "School"}`;
+      trip?.controlledPilot ? `Controlled pilot → ${trip.destinationLabel}` :
+        `${entity.homeZone?.code || "Home"} → ${entity.schoolPoint?.name || entity.schoolZone?.name || "School"}`;
     appendSelectionMetric("State", STATE_META[entity.state]?.label || entity.state);
     appendSelectionMetric("Age", String(entity.age));
     appendSelectionMetric("School mode", entity.travelModeLabel || entity.travelMode || "n/a");
@@ -12435,7 +11639,7 @@ function renderAgentTimeline(agent) {
     segment.style.left = `${(start / 1440) * 100}%`;
     segment.style.width = `${Math.max(0.2, ((end - start) / 1440) * 100)}%`;
     segment.style.background = STATE_META[event.state]?.color || "#8a8f88";
-    segment.title = `${formatTime(start)} ${STATE_META[event.state]?.label || event.state}`;
+    segment.title = `${formatTime(start)} ${event.label || STATE_META[event.state]?.label || event.state}`;
     agentObserverEls.timeline.append(segment);
   });
   const nowMarker = document.createElement("i");
@@ -12449,6 +11653,9 @@ function renderAgentTimeline(agent) {
 function updateAgentRouteReadout(agent) {
   populateAgentTripSelect(agent);
   const trip = selectedAgentTrip(agent);
+  const legSplitLabel = agentObserverEls.routeLegSplit.previousElementSibling;
+  if (legSplitLabel) legSplitLabel.textContent = trip?.controlledPilot
+    ? "Walking / unverified access / mechanical" : "Access / line-haul / egress";
   if (!trip) {
     agentObserverEls.routeTitle.textContent = "No completed route";
     [
@@ -12522,6 +11729,8 @@ function updateAgentRouteReadout(agent) {
       : "No tagged edge on route";
     agentObserverEls.routeLegSplit.textContent = geometry.kind === "multimodal"
       ? `${formatNumber(route.accessWalkMinutes || 0, 1)} / ${formatNumber(route.lineHaulMinutes || 0, 1)} / ${formatNumber(route.egressWalkMinutes || 0, 1)} min`
+      : trip.controlledPilot
+        ? `${formatNumber(route.activeWalkingMinutes, 1)} min walking / ${formatNumber(route.unverifiedAccessMinutes, 1)} min unverified access / ${formatNumber(route.mechanicalMinutes, 1)} min mechanical`
       : "All active walking";
     agentObserverEls.routeStops.textContent = geometry.kind === "multimodal"
       ? `${route.boardingStop || "Direct access"} / ${route.alightingStop || "Direct access"}`
@@ -12601,8 +11810,10 @@ function updateAgentObserverPanel() {
     agentObserverEls.eyebrow.textContent = agentObserver.mode === "audit" ? "Route audit" : "Selected Agent";
     agentObserverEls.title.textContent = `Agent ${selected.id}`;
     agentObserverEls.subtitle.textContent =
-      `${selected.homeZone?.code || "Home"} · ${selected.schoolPoint?.name || selected.schoolZone?.name || "School"}`;
-    agentObserverEls.state.textContent = STATE_META[selected.state]?.label || selected.state;
+      latestAgentTrip(selected)?.controlledPilot ? `Controlled pilot → ${latestAgentTrip(selected).destinationLabel}` :
+        `${selected.homeZone?.code || "Home"} · ${selected.schoolPoint?.name || selected.schoolZone?.name || "School"}`;
+    agentObserverEls.state.textContent = window.CrossPackLive?.state.agent === selected && window.CrossPackLive.state.status === "dwell"
+      ? "Inactive POI stop" : STATE_META[selected.state]?.label || selected.state;
     agentObserverEls.age.textContent = String(selected.age);
     agentObserverEls.home.textContent = selected.homeZone?.code || selected.homeZone?.name || "n/a";
     agentObserverEls.mode.textContent = selected.travelModeLabel || selected.travelMode || "n/a";
@@ -13546,359 +12757,11 @@ function populationScaleValue(value, unit, digits = 2) {
   return formatNumber(value, digits);
 }
 
-function renderPopulationScaleDiagnostic() {
-  const reference = populationScaleReference;
-  if (!reference) {
-    validationEls.scaleRunMetric.textContent = "Unavailable";
-    validationEls.scaleRunDesign.textContent = "diagnostic bundle not loaded";
-    validationEls.scaleStatus.className = "population-scale-status unavailable";
-    validationEls.scaleStatus.textContent = "Unavailable";
-    [
-      validationEls.scaleTable,
-      validationEls.scaleStabilityList,
-      validationEls.scaleLedgerList,
-      validationEls.scaleFindingList,
-    ].forEach((element) => element.replaceChildren());
-    return;
-  }
+function renderPopulationScaleDiagnostic() {}
 
-  const design = reference.design || {};
-  const aggregates = reference.aggregates || [];
-  const scaleDependent = (reference.stability || []).filter(
-    (metric) => metric.status === "SCALE_DEPENDENT",
-  );
-  validationEls.scaleRunMetric.textContent = (design.runCount || 0).toLocaleString();
-  validationEls.scaleRunDesign.textContent =
-    `${(design.populationSizes || []).join(" / ")} Agents · ${design.seedCount || 0} common seeds`;
-  validationEls.scaleStatus.className = `population-scale-status ${scaleDependent.length ? "dependent" : "stable"}`;
-  validationEls.scaleStatus.textContent = scaleDependent.length
-    ? `${scaleDependent.length} scale-dependent metrics`
-    : "No scale flag";
+function updateValidationScopeContext() {}
 
-  validationEls.scaleTable.innerHTML = `
-    <div class="population-scale-row header" role="row">
-      <span>Agents</span>
-      <span>Represented<small>Observation</small></span>
-      <span>Median weight<small>Observation</small></span>
-      <span>School walk<small>Observation</small></span>
-      <span>MVPA<small>Observation</small></span>
-      <span>Contact<small>Mechanism</small></span>
-      <span>Crowded<small>Mechanism</small></span>
-      <span>Avoided<small>Mechanism</small></span>
-    </div>
-    ${aggregates.map((row) => `
-      <div class="population-scale-row" role="row">
-        <strong>${row.population.toLocaleString()}</strong>
-        <span>${formatNumber(row.representedPopulation?.mean, 1)}</span>
-        <span>${formatNumber(row.censusWeight?.p50?.mean, 1)}</span>
-        <span>${populationScaleValue(row.outcomes?.weightedSchoolWalkMinutes?.mean, "min")}</span>
-        <span>${populationScaleValue(row.outcomes?.weightedMvpaMinutes?.mean, "min")}</span>
-        <span>${populationScaleValue(row.interaction?.rawContactExposure?.mean, "index", 3)}</span>
-        <span>${populationScaleValue(row.interaction?.timeMeanRawCrowdedShare?.mean, "share", 1)}</span>
-        <span>${populationScaleValue(row.interaction?.rawAvoidedDestinationShare?.mean, "share", 1)}</span>
-      </div>`).join("")}
-  `;
-
-  validationEls.scaleStabilityList.innerHTML = (reference.stability || []).map((metric) => `
-    <div class="population-scale-stability-row">
-      <div>
-        <strong>${metric.label}</strong>
-        <span>${metric.ledger} ledger · 900 / 1,400 / 2,000</span>
-      </div>
-      <div class="population-scale-values">
-        ${metric.values.map((value) => `<span>${populationScaleValue(value, metric.unit)}</span>`).join("")}
-      </div>
-      <b class="scale-class ${metric.status.toLowerCase().replaceAll("_", "-")}">${metric.status.replaceAll("_", " ")}</b>
-    </div>`).join("");
-
-  const referenceRun = aggregates.find((row) => row.population === 2000) || aggregates.at(-1);
-  validationEls.scaleLedgerList.innerHTML = referenceRun ? [
-    [
-      "School mechanism load p95",
-      populationScaleValue(referenceRun.school?.modelLoadRatioP95?.mean, "ratio"),
-      "raw Agents / normalized target load",
-    ],
-    [
-      "School represented potential p95",
-      populationScaleValue(referenceRun.school?.potentialCapacityRatioP95?.mean, "ratio"),
-      `${populationScaleValue(referenceRun.school?.potentialOverCapacityRepresentedShare?.mean, "share", 1)} assigned above capacity proxy`,
-    ],
-    [
-      "POI peak mechanism occupancy",
-      `${formatNumber(referenceRun.poi?.peakRawVenueOccupancy?.mean, 1)} Agents`,
-      `${populationScaleValue(referenceRun.poi?.peakRawCapacityRatio?.mean, "ratio")} of capacity prior`,
-    ],
-    [
-      "POI peak represented potential",
-      formatNumber(referenceRun.poi?.peakRepresentedVenueOccupancy?.mean, 1),
-      `${populationScaleValue(referenceRun.poi?.peakPotentialCapacityRatio?.mean, "ratio")} of capacity prior`,
-    ],
-  ].map(([label, value, note]) => `
-    <div class="population-scale-ledger-row">
-      <span>${label}<small>${note}</small></span>
-      <strong>${value}</strong>
-    </div>`).join("") : "";
-  validationEls.scaleFindingList.innerHTML = (reference.findings || [])
-    .map((finding) => `<span>${finding}</span>`)
-    .join("");
-}
-
-function updateValidationScopeContext() {
-  if (!validationReference) return;
-  const design = validationReference.design || {};
-  const checks = validationReference.checks || [];
-  const passCount = checks.filter((check) => check.status === "PASS").length;
-  const internalPass = validationReference.internalStatus === "PASS";
-  const externalPending = validationReference.externalStatus !== "PASS";
-  const routeEvaluationCount = (design.routeAuditOdCount || 0) * (design.routeCostProfileCount || 0);
-  if (isWholeHkScope()) {
-    validationEls.kicker.textContent = "Whole-HK shared runtime · evidence boundary";
-    validationEls.scopeNote.textContent = "The charts below are frozen Hong Kong Island benchmarks, not whole-HK validation. Whole-HK population coverage and every routing attempt are reported in the live cohort audit. Cross-pack walking and access-hour enforcement are not implemented; external child-route and MVPA validation remain pending.";
-    validationEls.runLabel.textContent = "Frozen HKI benchmark · not a whole-HK result";
-    validationEls.internalStatus.textContent = "Whole-HK internal checks: see cohort audit";
-    validationEls.internalStatus.className = "validation-status pending";
-    validationEls.externalStatus.textContent = "Whole-HK external validation · pending";
-    validationEls.externalStatus.className = "validation-status pending";
-    validationEls.gateMetric.textContent = `${passCount} / ${checks.length} HKI only`;
-    validationEls.dccaMetric.textContent = "452 / 452 cohort coverage";
-    validationEls.routeMetric.textContent = `${wholeHkState.attempts.length} live attempts`;
-    validationEls.routeDesign.textContent = "Attempt counts include blocked trips; frozen charts below are HKI only";
-    validationEls.externalMetric.textContent = "Pending";
-    return;
-  }
-  if (isV12_11Scope()) {
-    const regionName = regionalScopeLabel().split(" · ")[0];
-    const manifest = activeRegionalRoutingManifest();
-    const routeEvidence = isNtWestScope()
-      ? v12_11NtWestRoutingEvidence
-      : v12_11IslandsRoutingEvidence;
-    const agentEvidence = isNtWestScope()
-      ? v12_11NtWestAgentEvidence
-      : v12_11IslandsAgentEvidence;
-    const routeCount = routeEvidence?.tests?.reachableOdPairs || routeEvidence?.routeSample?.length || 0;
-    const internalRegionPass = routeEvidence?.status === "PASS" && agentEvidence?.status === "PASS";
-    validationEls.kicker.textContent = `V12.11 · ${regionName} · evidence boundary`;
-    validationEls.scopeNote.textContent = `This tab retains the frozen Hong Kong Island sensitivity benchmark. ${regionName} has separate graph, endpoint, component, runtime and Agent audits in Coverage and Route QA. These establish internal computational validity only; disconnected components and water are never interpreted as walkable.`;
-    validationEls.runLabel.textContent =
-      `Frozen HKi sensitivity benchmark · ${design.conditionCount || 0} conditions · ` +
-      `${design.simulationRunCount || 0} full-day simulations · V12.11 regional evidence reported separately`;
-    validationEls.internalStatus.className = `validation-status ${internalRegionPass ? "pass" : "pending"}`;
-    validationEls.internalStatus.textContent = `V12.11 internal audits · ${internalRegionPass ? "pass" : "review"}`;
-    validationEls.externalStatus.className = "validation-status pending";
-    validationEls.externalStatus.textContent = `${regionName} external validation · pending`;
-    validationEls.gateMetric.textContent = `${passCount} / ${checks.length} HKi`;
-    validationEls.dccaMetric.textContent = `${manifest?.scope?.dccaCount || 0} / ${manifest?.scope?.dccaCount || 0} regional graph`;
-    validationEls.routeMetric.textContent = `${routeCount} exact test ODs`;
-    validationEls.routeDesign.textContent = "Regional structural/runtime tests are deterministic component-aware graph checks";
-    validationEls.externalMetric.textContent = "Pending";
-    return;
-  }
-  if (isNtEastScope()) {
-    validationEls.kicker.textContent = "V12.10 · New Territories East · evidence boundary";
-    validationEls.scopeNote.textContent = "This tab retains the frozen Hong Kong Island sensitivity benchmark. New Territories East has separate graph, endpoint, runtime and Agent integration audits in Coverage and Route QA; those checks establish internal computational validity, not external child-route validation.";
-    validationEls.runLabel.textContent =
-      `Frozen HKi sensitivity benchmark · ${design.conditionCount || 0} conditions · ` +
-      `${design.simulationRunCount || 0} full-day simulations · NT East evidence is reported separately`;
-    validationEls.internalStatus.className = `validation-status ${internalPass ? "pass" : "pending"}`;
-    validationEls.internalStatus.textContent = `HKi internal robustness · ${internalPass ? "pass" : "review"}`;
-    validationEls.externalStatus.className = "validation-status pending";
-    validationEls.externalStatus.textContent = "NT East external validation · pending";
-    validationEls.gateMetric.textContent = `${passCount} / ${checks.length} HKi`;
-    validationEls.dccaMetric.textContent = "107 / 107 NT East graph";
-    validationEls.routeMetric.textContent = `${v12_10NtEastRoutingEvidence?.tests?.reachableOdPairs || 0} exact test ODs`;
-    validationEls.routeDesign.textContent = "NT East structural/runtime tests are deterministic graph checks";
-    validationEls.externalMetric.textContent = "Pending";
-    return;
-  }
-  if (isKowloonScope()) {
-    validationEls.kicker.textContent = "V12.9.5 · Continuous Kowloon · V12.9.4 evidence boundary";
-    validationEls.scopeNote.textContent = "This tab retains the frozen Hong Kong Island sensitivity benchmark. Kowloon now has its own TCS household holdout, spatial multimodal audit and 12-run population-scale evidence in Kowloon Lab; neither evidence set is external validation.";
-    validationEls.runLabel.textContent =
-      `Frozen HKi sensitivity benchmark · ${design.conditionCount || 0} conditions · ` +
-      `${design.simulationRunCount || 0} full-day simulations · Kowloon evidence is separated in Kowloon Lab`;
-    validationEls.internalStatus.className = `validation-status ${internalPass ? "pass" : "pending"}`;
-    validationEls.internalStatus.textContent = `HKi internal robustness · ${internalPass ? "pass" : "review"}`;
-    validationEls.externalStatus.className = "validation-status pending";
-    validationEls.externalStatus.textContent = "Kowloon external validation · pending";
-    validationEls.gateMetric.textContent = `${passCount} / ${checks.length} HKi`;
-    validationEls.dccaMetric.textContent = `${design.routeAuditOdCount || 0} / 80 HKi`;
-    validationEls.routeMetric.textContent = `${design.routeAuditOdCount || 0} × ${design.routeCostProfileCount || 0} HKi`;
-    validationEls.routeDesign.textContent = `${routeEvaluationCount.toLocaleString()} HKi directed 3DPN A* evaluations`;
-    validationEls.externalMetric.textContent = "Pending";
-    return;
-  }
-  validationEls.kicker.textContent = "V12.7.1 · Hong Kong Island";
-  validationEls.scopeNote.textContent = "This evidence applies directly to the Hong Kong Island model scope.";
-  validationEls.runLabel.textContent =
-    `Frozen V12.6 baseline · ${design.conditionCount || 0} conditions · ` +
-    `${design.simulationRunCount || 0} full-day simulations · ${design.seedCount || 0} common seeds`;
-  validationEls.internalStatus.className = `validation-status ${internalPass ? "pass" : "pending"}`;
-  validationEls.internalStatus.textContent = `Internal robustness · ${internalPass ? "pass" : "review"}`;
-  validationEls.externalStatus.className = `validation-status ${externalPending ? "pending" : "pass"}`;
-  validationEls.externalStatus.textContent = `External validation · ${externalPending ? "pending" : "pass"}`;
-  validationEls.gateMetric.textContent = `${passCount} / ${checks.length}`;
-  validationEls.dccaMetric.textContent = `${design.routeAuditOdCount || 0} / 80`;
-  validationEls.routeMetric.textContent = `${design.routeAuditOdCount || 0} × ${design.routeCostProfileCount || 0}`;
-  validationEls.routeDesign.textContent = `${routeEvaluationCount.toLocaleString()} directed 3DPN A* evaluations`;
-  validationEls.externalMetric.textContent = externalPending ? "Pending" : "Linked";
-}
-
-function updateValidationView() {
-  if (validationViewRendered) {
-    updateValidationScopeContext();
-    return;
-  }
-  validationViewRendered = true;
-  if (!validationReference) {
-    validationEls.runLabel.textContent = "Validation evidence bundle is unavailable";
-    validationEls.internalStatus.className = "validation-status pending";
-    validationEls.internalStatus.textContent = "Internal robustness · unavailable";
-    validationEls.externalStatus.className = "validation-status pending";
-    validationEls.externalStatus.textContent = "External validation · pending";
-    validationEls.externalMetric.textContent = "Pending";
-    [
-      validationEls.effectList,
-      validationEls.outcomeList,
-      validationEls.routeCostList,
-      validationEls.dccaList,
-      validationEls.gateList,
-      validationEls.claimList,
-      validationEls.scaleTable,
-      validationEls.scaleStabilityList,
-      validationEls.scaleLedgerList,
-      validationEls.scaleFindingList,
-    ].forEach((element) => element.replaceChildren());
-    return;
-  }
-
-  const design = validationReference.design || {};
-  const checks = validationReference.checks || [];
-  const passCount = checks.filter((check) => check.status === "PASS").length;
-  const internalPass = validationReference.internalStatus === "PASS";
-  const externalPending = validationReference.externalStatus !== "PASS";
-  const routeEvaluationCount = (design.routeAuditOdCount || 0) * (design.routeCostProfileCount || 0);
-  validationEls.runLabel.textContent =
-    `Frozen V12.6 baseline · ${design.conditionCount || 0} conditions · ` +
-    `${design.simulationRunCount || 0} full-day simulations · ${design.seedCount || 0} common seeds`;
-  validationEls.internalStatus.className = `validation-status ${internalPass ? "pass" : "pending"}`;
-  validationEls.internalStatus.textContent = `Internal robustness · ${internalPass ? "pass" : "review"}`;
-  validationEls.externalStatus.className = `validation-status ${externalPending ? "pending" : "pass"}`;
-  validationEls.externalStatus.textContent = `External validation · ${externalPending ? "pending" : "pass"}`;
-  validationEls.gateMetric.textContent = `${passCount} / ${checks.length}`;
-  validationEls.runMetric.textContent = (design.simulationRunCount || 0).toLocaleString();
-  validationEls.runDesign.textContent =
-    `${design.seedCount || 0} common seeds · ${(design.populationPerSeed || 0).toLocaleString()} Agents/seed`;
-  validationEls.dccaMetric.textContent = `${design.routeAuditOdCount || 0} / 80`;
-  validationEls.routeMetric.textContent =
-    `${design.routeAuditOdCount || 0} × ${design.routeCostProfileCount || 0}`;
-  validationEls.routeDesign.textContent =
-    `${routeEvaluationCount.toLocaleString()} directed 3DPN A* evaluations`;
-  validationEls.externalMetric.textContent = externalPending ? "Pending" : "Linked";
-  renderPopulationScaleDiagnostic();
-
-  const parameterEffects = validationReference.parameterEffects || [];
-  const maximumImpact = Math.max(1e-9, ...parameterEffects.map((effect) => effect.impactScore || 0));
-  validationEls.effectList.innerHTML = parameterEffects.map((effect) => {
-    const dominant = Object.values(effect.metrics || {}).find(
-      (metric) => metric.label === effect.dominantMetric,
-    ) || Object.values(effect.metrics || {})[0];
-    if (!dominant) return "";
-    const meterWidth = Math.max(4, ((effect.impactScore || 0) / maximumImpact) * 100);
-    const digits = dominant.unit === "m" ? 0 : dominant.unit === "share" ? 1 : 2;
-    return `
-      <div class="validation-effect-row">
-        <div class="validation-effect-name">
-          <strong>${effect.label}</strong>
-          <span>${effect.status} · dominant: ${dominant.label}</span>
-        </div>
-        <div class="validation-triplet" aria-label="${dominant.label} low baseline high">
-          <span><small>Low</small>${validationValue(dominant.low, dominant.unit, digits)}</span>
-          <span><small>Base</small>${validationValue(dominant.baseline, dominant.unit, digits)}</span>
-          <span><small>High</small>${validationValue(dominant.high, dominant.unit, digits)}</span>
-        </div>
-        <div class="validation-impact">
-          <span><i style="width:${meterWidth.toFixed(1)}%"></i></span>
-          <small>relative impact ${formatNumber(effect.impactScore || 0, 3)}</small>
-        </div>
-      </div>`;
-  }).join("");
-
-  const outcomes = [
-    ["schoolWalkMeanMinutes", "School walking time", "min", 2],
-    ["criticalShare", "Critical-route share", "share", 1],
-    ["connectorP95Meters", "Connector p95", "m", 0],
-    ["meanMvpaMinutes", "Expected MVPA", "min", 2],
-  ];
-  validationEls.outcomeList.innerHTML = outcomes.map(([key, label, unit, digits]) => {
-    const range = validationReference.outcomeRanges?.[key] || [];
-    const baseline = validationReference.baseline?.[key];
-    return `
-      <div class="validation-outcome-row">
-        <span>${label}</span>
-        <strong>${validationValue(range[0], unit, digits)} – ${validationValue(range[1], unit, digits)}</strong>
-        <small>Frozen baseline ${validationValue(baseline, unit, digits)}</small>
-      </div>`;
-  }).join("");
-
-  const routeGroups = new Map();
-  (validationReference.routeCostProfiles || [])
-    .filter((profile) => profile.level !== "baseline")
-    .forEach((profile) => {
-      const pair = routeGroups.get(profile.groupId) || { label: profile.groupLabel };
-      pair[profile.level] = profile;
-      routeGroups.set(profile.groupId, pair);
-    });
-  validationEls.routeCostList.innerHTML = [...routeGroups.values()].map((pair) => {
-    const low = pair.low || {};
-    const high = pair.high || {};
-    return `
-      <div class="validation-route-cost-row">
-        <div class="validation-route-cost-name">
-          <strong>${pair.label}</strong>
-          <span>${low.odCount || high.odCount || 0} fixed ODs · ${(low.failureCount || 0) + (high.failureCount || 0)} failures</span>
-        </div>
-        <div class="validation-route-cost-value">
-          <span>Changed routes L / H</span>
-          <strong>${validationValue(low.changedRouteShare, "share", 1)} / ${validationValue(high.changedRouteShare, "share", 1)}</strong>
-        </div>
-        <div class="validation-route-cost-value">
-          <span>Mean time Δ L / H</span>
-          <strong>${signedValidationValue(low.meanTimeDeltaMinutes, "min", 2)} / ${signedValidationValue(high.meanTimeDeltaMinutes, "min", 2)}</strong>
-        </div>
-        <div class="validation-route-cost-value">
-          <span>High-terrain high Δ</span>
-          <strong>${signedValidationValue(high.byTerrain?.high?.meanTimeDeltaMinutes, "min", 2)}</strong>
-        </div>
-      </div>`;
-  }).join("");
-
-  validationEls.dccaList.innerHTML = (validationReference.dccaStratification?.sensitiveDccas || [])
-    .slice(0, 10)
-    .map((dcca) => `
-      <div class="validation-dcca-row">
-        <div class="validation-dcca-name">
-          <strong>${dcca.code} · ${dcca.name}</strong>
-          <span>${dcca.stratum.replaceAll("_", " · ")} · baseline ${validationValue(dcca.baselineCriticalShare, "share", 1)}</span>
-        </div>
-        <span class="validation-dcca-range">${formatNumber(dcca.criticalShareRange * 100, 1)} pp</span>
-      </div>`)
-    .join("");
-
-  validationEls.gateList.innerHTML = checks.map((check) => `
-    <div class="validation-gate-row">
-      <b class="gate-mark ${check.status === "PASS" ? "pass" : "pending"}">${check.status}</b>
-      <strong>${check.name}<small>${check.domain}</small></strong>
-      <span>${check.actual} · ${check.expected}</span>
-    </div>`).join("");
-
-  const external = validationReference.externalValidation || {};
-  const claims = [
-    ...(validationReference.claimBoundary || []),
-    `Required external evidence: ${external.requiredEvidence || "held-out reference data"}`,
-  ];
-  validationEls.claimList.innerHTML = claims.map((claim) => `<span>${claim}</span>`).join("");
-  updateValidationScopeContext();
-}
+function updateValidationView() {}
 
 function updateTooltip() {
   if (activeView !== "scene" || pointer.dragging || !pointer.hasPosition) {
@@ -13929,10 +12792,11 @@ function setPanelCollapsed(panel, collapsed) {
 }
 
 function setView(view) {
+  if (!["osm","scene","agents","buildings","map","stats"].includes(view)) view="osm";
   activeView = view;
   tooltip.hidden = true;
   simulationArea.dataset.view = view;
-  const selfContainedWorkspace = ["agents", "routeqa", "terrainqa", "validation", "kowloonlab", "expansion", "crosspack", "buildings", "rules", "comparison", "stats"].includes(view);
+  const selfContainedWorkspace = ["agents", "routeqa", "terrainqa", "validation", "kowloonlab", "expansion", "crosspack", "policies", "indicators", "buildings", "rules", "comparison", "stats"].includes(view);
   setPanelCollapsed("metrics", selfContainedWorkspace);
   document.querySelectorAll(".tab-button").forEach((button) => {
     const active = button.dataset.view === view;
@@ -13950,6 +12814,8 @@ function setView(view) {
   kowloonLabView.classList.toggle("active", view === "kowloonlab");
   expansionView.classList.toggle("active", view === "expansion");
   document.getElementById("crosspackView")?.classList.toggle("active", view === "crosspack");
+  document.getElementById("policiesView")?.classList.toggle("active", view === "policies");
+  if (view === "policies") window.PolicyLab?.show();
   if (view === "crosspack") window.CrossPackLab?.show();
   buildingsView.classList.toggle("active", view === "buildings");
   rulesView.classList.toggle("active", view === "rules");
@@ -14305,18 +13171,10 @@ function bindEvents() {
   });
 
   controls.time.addEventListener("input", () => {
-    world.time = Number(controls.time.value);
-    world.tripSequence = 0;
-    world.agents.forEach((agent) => {
-      agent.taskKey = "";
-      agent.activeTrip = null;
-      resetAgentObserverHistory(agent);
-    });
-    agentObserver.selectedTripId = null;
-    invalidateAgentObserverGeometry();
-    world.metrics = computeMetrics();
-    updatePanels();
+    world.running = false;
+    controls.time.setAttribute("aria-valuetext", `Restart at ${formatTime(Number(controls.time.value))}`);
   });
+  controls.time.addEventListener("change", () => restartAtTime(controls.time.value));
 
   expansionEls.regionSelect.addEventListener("change", () => {
     const nextKey = expansionEls.regionSelect.value;

@@ -18,24 +18,16 @@
   const searchableAreas = () => isPilotScope() ? [pilotArea] : visibleDccas();
   document.body.classList.add("workbench");
   const views = {
-    osm: ["Map explorer", "map", "Observe", "Basemap / live Agents"],
-    scene: ["3D environment", "box", "Observe", "Built form / pedestrian network"],
-    agents: ["Agent journeys", "route", "Observe", "Cohort / individual / route audit"],
-    buildings: ["Building atlas", "building-2", "Observe", "Distribution / individual models"],
-    map: ["Boundary map", "scan", "Observe", "Administrative geography / activity"],
-    comparison: ["2D / 3D comparison", "split", "Analyse", "Paired model comparison"],
-    stats: ["Activity outcomes", "chart-no-axes-combined", "Analyse", "Live modelled outcomes"],
-    rules: ["Behaviour rules", "sliders-horizontal", "Analyse", "Interaction parameters / scenarios"],
-    routeqa: ["Route quality", "git-pull-request", "Evidence", "Walking route diagnostics"],
-    terrainqa: ["Terrain reliability", "mountain", "Evidence", "Source 3D / bounded stress test"],
-    validation: ["Validation", "circle-check", "Evidence", "Calibration / held-out evidence"],
-    kowloonlab: ["Kowloon lab", "flask-conical", "Evidence", "Regional experiment evidence"],
-    expansion: ["HK coverage", "panels-top-left", "Evidence", "Regional graph coverage"],
-    crosspack: ["Cross-region routes", "waypoints", "Evidence", "Source-connected mainland OD audit"],
+    osm:["Map explorer","map","Observe","Real Hong Kong / synthetic Agents"],
+    scene:["3D environment","box","Observe","LandsD buildings / 3D pedestrian network"],
+    agents:["Agent journeys","route","Observe","Synthetic walking school journeys"],
+    buildings:["Building atlas","building-2","Observe","Public CSDI building geometry"],
+    map:["Boundary map","scan","Observe","Official District / DCCA 2019 boundaries"],
+    stats:["Live activity","chart-no-axes-combined","Analyse","Current synthetic run / not research findings"],
   };
   const nav = el("nav", "wb-nav");
   nav.setAttribute("aria-label", "Workspace views");
-  nav.innerHTML = `<div class="wb-wordmark"><span class="wb-monogram">HK</span><div><strong>CHILD MOBILITY</strong><span>RESEARCH LAB</span></div></div><div class="wb-nav-scroll"></div><div class="wb-nav-foot"><span class="wb-status-dot"></span><span>Local workspace<strong>${APP_RELEASE.version} · Workbench</strong></span></div>`;
+  nav.innerHTML = `<div class="wb-wordmark"><span class="wb-monogram">HK</span><div><strong>CHILD MOBILITY</strong><span>PUBLIC DATA EDITION</span></div></div><div class="wb-nav-scroll"></div><div class="wb-nav-foot"><span class="wb-status-dot"></span><span>Public model<strong>${APP_RELEASE.version} · Workbench</strong></span></div>`;
   for (const group of ["Observe", "Analyse", "Evidence"]) {
     const section = el("div", "wb-nav-group", `<h2>${group}</h2>`);
     for (const [id, [title, symbol, category]] of Object.entries(views)) {
@@ -49,7 +41,7 @@
     nav.querySelector(".wb-nav-scroll").append(section);
   }
   app.prepend(nav);
-  const header = el("header", "wb-header", `${iconButton("wbMenu", "panel-left", "Toggle navigation")}<div class="wb-scope"><span class="wb-kicker">STUDY REGION</span></div><div class="wb-header-spacer"></div><span class="wb-local">${icon("hard-drive")} Local model</span><a class="wb-classic" href="classic.html" target="_blank" rel="noopener">Original A ${icon("arrow-up-right")}</a>${iconButton("wbSettings", "settings-2", "Simulation settings")}`);
+  const header = el("header", "wb-header", `${iconButton("wbMenu", "panel-left", "Toggle navigation")}<div class="wb-scope"><span class="wb-kicker">STUDY REGION</span></div><div class="wb-header-spacer"></div><span class="wb-local">${icon("hard-drive")} Public data</span><a class="wb-classic" href="data-sources.html" target="_blank" rel="noopener">Data & scope ${icon("arrow-up-right")}</a>${iconButton("wbSettings", "settings-2", "Simulation settings")}`);
   header.querySelector(".wb-scope").append($("#scopeSelect"));
   app.prepend(header);
   const toolbar = el("div", "wb-toolbar", `<div class="wb-view-heading"><span id="wbCategory" class="wb-kicker"></span><h1 id="wbTitle"></h1></div><span id="wbViewContext"></span><div class="wb-tools">${iconButton("wbSearch", "search", "Find Agent or DCCA")}${iconButton("wbLayers", "layers", "Map layers and legend")}${iconButton("wbInspector", "panel-right", "Toggle live inspector")}</div>`);
@@ -67,8 +59,36 @@
   const footer = el("footer", "wb-transport", `<div class="wb-playback"></div><div class="wb-clock"><strong id="wbTime">07:00</strong><span id="wbPhase">Morning</span></div><div class="wb-timeline"><div class="wb-timeline-label"><span>SIMULATION DAY</span><span id="wbRunState">Running</span></div><div class="wb-hour-ticks"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div></div><div class="wb-speed"><label for="speedRange">Speed <span id="wbSpeedValue">36x</span></label></div>`);
   footer.querySelector(".wb-playback").append($("#toggleButton"), $("#resetButton"));
   footer.querySelector(".wb-timeline").insertBefore($("#timeRange"), footer.querySelector(".wb-hour-ticks"));
+  footer.querySelector(".wb-timeline-label span").textContent = "RESTART TIME";
+  footer.querySelector("#timeRange").title = "Restart at selected time (resets the cohort and pauses)";
+  footer.querySelector("#timeRange").setAttribute("aria-label", "Restart simulation at selected time");
   footer.querySelector(".wb-speed").append($("#speedRange"));
   app.append(footer);
+  const buildingReadout = $(".building-readout");
+  const buildingDetails = el("details", "wb-building-details", `<summary>Building details ${icon("chevron-down")}</summary>`);
+  buildingDetails.append($(".building-select-block"), $(".building-metrics"));
+  buildingReadout.append(buildingDetails);
+  const buildingKey = el("button", "wb-building-key", `${icon("layers")}<span>Map key</span>`);
+  buildingKey.type = "button";
+  buildingKey.id = "wbBuildingKey";
+  buildingKey.title = "Toggle building legend";
+  buildingKey.setAttribute("aria-expanded", "false");
+  $("#buildingsView").append(buildingKey);
+  buildingKey.onclick = () => {
+    const open = $("#buildingsView").dataset.legendOpen !== "true";
+    $("#buildingsView").dataset.legendOpen = String(open);
+    buildingKey.setAttribute("aria-expanded", String(open));
+    if (open) buildingDetails.open = false;
+  };
+  buildingDetails.addEventListener("toggle", () => {
+    if (buildingDetails.open) {
+      $("#buildingsView").dataset.legendOpen = "false";
+      buildingKey.setAttribute("aria-expanded", "false");
+    }
+  });
+  const compactBuildings = matchMedia("(max-width: 620px)");
+  buildingDetails.open = !compactBuildings.matches;
+  compactBuildings.addEventListener("change", () => { buildingDetails.open = !compactBuildings.matches; });
   // The engine retains references to these outputs even when they are not displayed.
   const retained = el("div", "wb-retained");
   for (const id of ["clockDisplay", "dayPhase", "timeOutput", "speedOutput"]) {
@@ -84,7 +104,9 @@
   app.append(inspector);
   const wholeAudit = el("section", "wb-whole-audit");
   wholeAudit.setAttribute("aria-label", "Whole Hong Kong cohort audit");
-  inspector.querySelector(".wb-metrics-slot").prepend(wholeAudit);
+  const auditDetails = el("details", "wb-audit-detail", "<summary>Population & network audit</summary>");
+  auditDetails.append(wholeAudit);
+  inspector.querySelector(".wb-metrics-slot").prepend(auditDetails);
   metrics.remove();
   for (const section of [...metrics.querySelectorAll(":scope > .metric-section")]) {
     const heading = section.querySelector("h2");
@@ -114,7 +136,7 @@
   const layerKey = el("div", "wb-layer-key");
   const layerEntries = [
     ["buildingsLayerToggle", "density", "Building cells; size reflects built form"],
-    ["poiLayerToggle", "poi", "iGeoCom places; shape indicates category"],
+    ["poiLayerToggle", "poi", "Not included in public edition"],
     ["schoolsLayerToggle", "school", "EDB school locations; colour indicates stage"],
     ["transportLayerToggle", "transport", "Transport access nodes"],
     ["agentsLayerToggle", "agent", "Agent clusters; number indicates count"],
@@ -143,7 +165,7 @@
   layers.append(layerKey);
   layerKey.append(el("div", "wb-selection-key", "Charcoal outline / trace: selected DCCA or Agent journey.<br>Amber marker: route replay position, not an additional Agent.<br>Selected traces may include access connectors; detailed classification is in Agent journeys / Route audit."));
   viewport.append(layers);
-  const attribution = el("div", "wb-attribution", `<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a><span> · LandsD / CSDI · EDB · iGeoCom</span>`);
+  const attribution = el("div", "wb-attribution", `<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a><span> · HKSAR Government / LandsD / CSDI / EDB / DATA.GOV.HK</span>`);
   viewport.append(attribution);
   const mapStrip = el("div", "wb-map-strip", `<span class="wb-strip-label">AGENT STATES</span>${STATE_ORDER.map((state) => `<span><i style="background:${STATE_META[state].color}"></i>${STATE_META[state].label}</span>`).join("")}`);
   viewport.append(mapStrip);
@@ -156,6 +178,7 @@
   $("#scopeSummary").hidden = true;
 
   const search = el("dialog", "wb-dialog wb-search", `<header><div><span class="wb-kicker">SPATIAL SEARCH</span><h2>Find an Agent or DCCA</h2></div>${iconButton("wbSearchClose", "x", "Close search")}</header><label class="wb-search-input">${icon("search")}<input id="wbSearchInput" type="search" placeholder="Agent 128, DCCA code or area name" autocomplete="off" aria-label="Agent ID or DCCA name" /></label><div id="wbSearchResults" class="wb-search-results"></div>`);
+  search.id = "wbSearchDialog";
   document.body.append(search);
   const agentToolbar = $(".agent-observer-toolbar");
   agentToolbar.insertAdjacentHTML("beforeend", iconButton("wbAgentFilters", "list-filter", "Toggle cohort filters"));
@@ -188,6 +211,8 @@
         if (!["scene", "map", "osm"].includes(activeView)) setView("osm");
         setSpatialSelection(type, entity, activeView);
         if (activeView === "scene" && window.WorkbenchScene) window.WorkbenchScene.focus(entity);
+        else if (type === "agent" && activeView === "osm") focusOsmEntity(entity.pos, "agent");
+        else if (type === "agent" && activeView === "map") focusMapArea({bounds:{minX:entity.pos.x-.5,maxX:entity.pos.x+.5,minY:entity.pos.y-.5,maxY:entity.pos.y+.5}});
         else focusSpatialEntityInView(activeView, type, entity);
         app.classList.remove("wb-inspector-hidden");
         app.classList.add("wb-inspector-open");
@@ -238,7 +263,10 @@
     }
   };
   const baselineFitOsm = fitOsmMap;
+  let pendingOsmFit = false;
   fitOsmMap = function() {
+    if (!osmCanvas.clientWidth || !osmCanvas.clientHeight) { pendingOsmFit = true; return; }
+    pendingOsmFit = false;
     baselineFitOsm();
     if (isPilotScope()) return;
     const coordinates = displayAreas().flatMap((area) => (area.polygon || []).flat().map(([x, y]) => localToLonLat({x, y})));
@@ -267,7 +295,10 @@
     window.WorkbenchScene?.setVisible(activeView === "scene");
     resizeAllCanvases();
   };
-  setView = function(view) { baselineSetView(view); syncView(); };
+  setView = function(view) {
+    baselineSetView(view); syncView();
+    if (view === "osm" && pendingOsmFit) fitOsmMap();
+  };
   drawOsmLegend = () => {};
   drawMapLegend = () => {};
   createAgentObserverProjection = function(bounds) {
@@ -296,6 +327,7 @@
   $("#wbVerticalScale").onchange = (event) => window.WorkbenchScene?.setVerticalScale(Number(event.target.value));
   let previousRunState;
   function syncLive() {
+    auditDetails.hidden = !isWholeHkScope();
     wholeAudit.hidden = !isWholeHkScope();
     if (isWholeHkScope()) {
       const audit = wholeHkDiagnostics();
@@ -303,7 +335,7 @@
       const homes = audit.regions.reduce((sum, region) => sum + region.withoutSourceHome, 0);
       const schools = audit.regions.reduce((sum, region) => sum + region.withoutSchool, 0);
       const ageErrorPp = audit.report ? 100 * audit.report.singleAgeUncertainty.maxAbsoluteError / audit.report.targetTotal : null;
-      wholeAudit.innerHTML = `<h2>Whole-HK cohort audit</h2><p class="wb-audit-status">${wholeHkState.status === "ready" ? "Shared clock · 5 routing packs" : `${wholeHkState.status} · ${Math.round(wholeHkState.progress * 100)}%`}</p><table><thead><tr><th>Region</th><th>DCCA</th><th>Agents</th></tr></thead><tbody>${audit.regions.map((region) => `<tr><th>${region.label}</th><td>${region.dccas}</td><td>${region.agents}</td></tr>`).join("")}</tbody></table><dl><div><dt>Represented children</dt><dd>${represented.toLocaleString(undefined, {maximumFractionDigits: 0})}</dd></div><div><dt>Walking attempts / blocked</dt><dd>${audit.attempts} / ${audit.blocked}</dd></div><div><dt>Homes without source building</dt><dd>${homes}</dd></div><div><dt>Unassigned schools</dt><dd>${schools}</dd></div></dl><p>Weights: DCCA × ages 6–8 / 9–11 / 12–16. Single ages are sampled. Contact and crowding use raw Agents.</p><p>Within-pack walking only. No cross-pack transfer model; no access-hour enforcement. Blocked travel is excluded from walking MVPA.</p>`;
+      wholeAudit.innerHTML = `<h2>Whole-HK cohort audit</h2><p class="wb-audit-status">${wholeHkState.status === "ready" ? "Shared clock · 5 routing packs" : `${wholeHkState.status} · ${Math.round(wholeHkState.progress * 100)}%`}</p><table><thead><tr><th>Region</th><th>DCCA</th><th>Agents</th></tr></thead><tbody>${audit.regions.map((region) => `<tr><th>${region.label}</th><td>${region.dccas}</td><td>${region.agents}</td></tr>`).join("")}</tbody></table><dl><div><dt>Represented children</dt><dd>${represented.toLocaleString(undefined, {maximumFractionDigits: 0})}</dd></div><div><dt>Within-pack walk attempts / blocked</dt><dd>${audit.attempts} / ${audit.blocked}</dd></div><div><dt>Homes without source building</dt><dd>${homes}</dd></div><div><dt>Unassigned schools</dt><dd>${schools}</dd></div></dl><p>Weights: DCCA × ages 6–8 / 9–11 / 12–16. Single ages are sampled. Contact and crowding use raw Agents.</p><p>Standard walking stays within packs. The optional mainland Agent pilot has a separate attempt log. No cross-water transfer or access-hour enforcement; timed-access routes are rejected by the pilot.</p>`;
       if (wholeHkState.error) {
         const error = el("p", "wb-audit-error"); error.textContent = wholeHkState.error; wholeAudit.append(error);
       }
@@ -318,7 +350,7 @@
       metricEls.tcsSpatial.textContent = "Walk: within-pack 3DPN. Kowloon: multimodal proxy; other mechanised trips: temporal.";
     }
     $("#wbTime").textContent = formatTime(world.time);
-    $("#wbPhase").textContent = world.time < 360 ? "Night" : world.time < 720 ? "Morning" : world.time < 1080 ? "Afternoon" : "Evening";
+    $("#wbPhase").textContent = `Day ${(world.dayIndex || 0) + 1}`;
     $("#wbRunState").textContent = world.running ? "Running" : "Paused";
     $("#wbLiveLabel").textContent = world.running ? "Running" : "Paused";
     $("#wbSpeedValue").textContent = `${world.speed}x`;

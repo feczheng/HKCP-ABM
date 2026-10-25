@@ -87,7 +87,7 @@
 
   async function responseToJson(response) {
     if (!response.ok) throw new Error(`Graph chunk request failed (${response.status}): ${response.url}`);
-    const bytes = new Uint8Array(await response.arrayBuffer());
+    const bytes = globalScope.PublicModelLoading ? await globalScope.PublicModelLoading.readResponse(response) : new Uint8Array(await response.arrayBuffer());
     const isGzip = bytes.length >= 2 && bytes[0] === 0x1f && bytes[1] === 0x8b;
     if (!isGzip) return JSON.parse(new TextDecoder().decode(bytes));
     if (typeof DecompressionStream === "undefined") {

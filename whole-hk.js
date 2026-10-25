@@ -176,9 +176,11 @@ function activateWholeHk() {
     guarded.forEach((control) => { if (control) control.disabled = true; });
     try {
       const regions = wholeHkRegions();
+      window.PublicModelLoading?.begin(regions);
       for (const [index, region] of regions.entries()) {
         if (!region.graph) throw new Error(`Missing graph: ${region.label}`);
         if (!region.graph.ready) await region.graph.load((progress) => {
+          window.PublicModelLoading?.progress(region, progress, regions);
           wholeHkState.progress = (index + Math.min(1, (progress.completed || 0) / Math.max(1, progress.total || 1))) / regions.length;
           if (metricEls.regionalRouting) metricEls.regionalRouting.textContent = `${region.label} ${Math.round(wholeHkState.progress * 100)}%`;
         });
@@ -186,6 +188,7 @@ function activateWholeHk() {
       }
       world.islandRoutingStatus = world.kowloonRoutingStatus = world.ntEastRoutingStatus = world.ntWestRoutingStatus = world.islandsRoutingStatus = "ready";
       world.islandRoutingProgress = world.kowloonRoutingProgress = world.ntEastRoutingProgress = world.ntWestRoutingProgress = world.islandsRoutingProgress = 1;
+      await window.PublicModelLoading?.preparing(Number(controls.population.value) || 2000);
       buildKowloonDisplayEdgeSample();
       buildNtEastDisplayEdgeSample();
       buildNtWestDisplayEdgeSample();
@@ -200,6 +203,7 @@ function activateWholeHk() {
       updatePanels();
       return true;
     } catch (error) {
+      window.PublicModelLoading?.fail(error);
       wholeHkState.status = "error";
       wholeHkState.error = error.message;
       wholeHkState.report = null;
@@ -212,6 +216,7 @@ function activateWholeHk() {
     } finally {
       guarded.forEach((control) => { if (control) control.disabled = false; });
       controls.toggle.disabled = wholeHkState.status !== "ready";
+      if (wholeHkState.status === "ready") window.PublicModelLoading?.ready(world.agents.length);
     }
   })().finally(() => { wholeHkState.loading = null; });
   return wholeHkState.loading;
@@ -265,7 +270,7 @@ function wholeHkAssignRoute(agent, target, purpose) {
     agent.lastRoute = null;
     result = assignAgentRouteCore(agent, target, purpose);
     if (!result && from === to && agent.lastRoute?.mode?.endsWith("local-connector")) {
-      agent.route = [{ ...target }];
+      agent.route ||= [{ ...target }];
       agent.routeIndex = 0;
       agent.routePurpose = purpose;
       result = true;
